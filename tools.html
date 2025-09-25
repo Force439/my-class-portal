@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أدوات المطور</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="header-marquee"><p>This page was developed for IT students by Eng.Hameed Mohammed AlSamei.</p></div>
+    <canvas id="matrix-canvas"></canvas>
+    <button id="theme-toggle-btn" title="تبديل الوضع"><i class="fa-solid fa-sun"></i></button>
+
+    <div class="card" id="content-section" style="display: block;">
+        <a href="index.html" class="back-to-home-btn"><i class="fa-solid fa-arrow-right"></i> العودة للرئيسية</a>
+        <h1><i class="fa-solid fa-screwdriver-wrench subject-icon-large"></i> أدوات المطور</h1>
+        <p>مجموعة من المواقع والأدوات الأساسية التي لا غنى عنها لأي طالب IT أو مبرمج.</p>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="ابحث في الأدوات...">
+            <i class="fa-solid fa-search search-icon"></i>
+        </div>
+
+        <div id="subjects-container">
+            <div class="subject-section">
+                <h3><i class="fa-solid fa-book-open subject-icon"></i> مواقع تعلم وتوثيق</h3>
+                <ul class="file-list">
+                    <li><span class="file-name"><i class="fa-brands fa-firefox-browser file-icon"></i> MDN Web Docs</span><a href="https://developer.mozilla.org/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
+                    <li><span class="file-name"><i class="fa-brands fa-stack-overflow file-icon"></i> Stack Overflow</span><a href="https://stackoverflow.com/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
+                    <li><span class="file-name"><i class="fa-brands fa-css3-alt file-icon"></i> CSS-Tricks</span><a href="https://css-tricks.com/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
+                </ul>
+            </div>
+            <div class="subject-section">
+                <h3><i class="fa-solid fa-palette subject-icon"></i> أدوات تصميم وأيقونات</h3>
+                <ul class="file-list">
+                    <li><span class="file-name"><i class="fa-solid fa-font-awesome file-icon"></i> Font Awesome</span><a href="https://fontawesome.com/icons" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
+                    <li><span class="file-name"><i class="fa-solid fa-palette file-icon"></i> Coolors</span><a href="https://coolors.co/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
+                    <li><span class="file-name"><i class="fa-solid fa-image file-icon"></i> Unsplash</span><a href="https://unsplash.com/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
+                </ul>
+            </div>
+            <div class="subject-section">
+                <h3><i class="fa-solid fa-code-branch subject-icon"></i> منصات استضافة ومشاركة الكود</h3>
+                <ul class="file-list">
+                    <li><span class="file-name"><i class="fa-brands fa-github file-icon"></i> GitHub</span><a href="https://github.com/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
+                    <li><span class="file-name"><i class="fa-solid fa-cloud-arrow-up file-icon"></i> Netlify</span><a href="https://www.netlify.com/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
+                    <li><span class="file-name"><i class="fa-solid fa-pen-to-square file-icon"></i> CodePen</span><a href="https://codepen.io/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <button id="back-to-top-btn" title="العودة إلى الأعلى"><i class="fa-solid fa-arrow-up"></i></button>
+    <script src="script.js"></script>
+</body>
+</html>

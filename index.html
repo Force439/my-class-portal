@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة المحاضرات الرقمية - الرئيسية</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="header-marquee"><p>This page was developed for IT students by Eng.Hameed Mohammed AlSamei.</p></div>
+    <canvas id="matrix-canvas"></canvas>
+    <button id="theme-toggle-btn" title="تبديل الوضع"><i class="fa-solid fa-sun"></i></button>
+
+    <div class="card" id="login-section">
+        <h1>بوابة المحاضرات الرقمية</h1>
+        <p>الوصول يتطلب تصريح أمني.</p>
+        <input type="password" id="password-input" placeholder=":: أدخل رمز الوصول ::">
+        <button id="login-button">فك التشفير</button>
+        <p id="error-message">رمز الوصول غير صحيح!</p>
+    </div>
+
+    <div class="card" id="content-section">
+        <h1>الرئيسية</h1>
+        <p>مرحباً بك في بوابة المحاضرات الرقمية.</p>
+
+        <div class="announcements-section">
+            <h2><i class="fa-solid fa-bell icon-header"></i> أخبار هامة</h2>
+            <div class="announcement-item">
+                <p><span class="doctor-name">د/أحمد ياسين:</span> إختبار لمادة English يوم الثلاثاء القادم بتاريخ 2025/9/23</p>
+            </div>
+            <div class="announcement-item">
+                <p><span class="doctor-name">د/أحمد عامر:</span> بحث في مادة الثقافة الإسلامية يوم الثلاثاء  بتأريخ2025/9/30</p>
+            </div>
+            <div class="announcement-item">
+                <p><span class="doctor-name">د/سوسن أبوهادي:</span> إختبار لمادة الرياضيات (1) يوم الخميس المقبل بتاريخ 2025/9/25</p>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-item">
+                <i class="fa-solid fa-file-alt"></i>
+                <h3 id="lectures-counter" class="stat-number" data-goal="0">0</h3>
+                <p>محاضرة وملف</p>
+            </div>
+            <div class="stat-item">
+                <i class="fa-solid fa-folder-open"></i>
+                <h3 id="subjects-counter" class="stat-number" data-goal="0">0</h3>
+                <p>مادة دراسية</p>
+            </div>
+            <div class="stat-item">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+                <h3 id="tools-counter" class="stat-number" data-goal="0">0</h3>
+                <p>أداة للمطور</p>
+            </div>
+        </div>
+
+        <h2><i class="fa-solid fa-folder-open icon-header"></i> المواد الدراسية</h2>
+        <div class="subjects-grid">
+            <a href="cpp.html" class="subject-card">
+                <i class="fa-solid fa-code subject-icon-large"></i>
+                <h3>أساسيات لغة C++</h3>
+                <p>محاضرات وتمارين لغة C++.</p>
+            </a>
+            <a href="math.html" class="subject-card">
+                <i class="fa-solid fa-calculator subject-icon-large"></i>
+                <h3>الرياضيات</h3>
+                <p>محاضرات الرياضيات المتقطعة وغيرها.</p>
+            </a>
+            <a href="computer.html" class="subject-card">
+                <i class="fa-solid fa-laptop subject-icon-large"></i>
+                <h3>مهارات الحاسوب</h3>
+                <p>المقررات النظرية والعملية.</p>
+            </a>
+            <a href="islamic.html" class="subject-card">
+                <i class="fa-solid fa-book-quran subject-icon-large"></i>
+                <h3>الثقافة الإسلامية</h3>
+                <p>المحاضرات الصوتية والملفات.</p>
+            </a>
+            <a href="tools.html" class="subject-card tool-item">
+                <i class="fa-solid fa-screwdriver-wrench subject-icon-large"></i>
+                <h3>أدوات المطور</h3>
+                <p>مواقع وروابط مفيدة للمبرمجين.</p>
+            </a>
+        </div>
+
+        <h2><i class="fa-solid fa-video icon-header"></i> مقررات الحاسوب (فيديو)</h2>
+        <ul id="video-list" class="file-list">
+            <li>
+                <span class="file-name"><i class="fa-solid fa-film file-icon"></i> جميع مقررات الفيديو لمادة الحاسوب</span>
+                <span class="status-badge soon">قريباً</span>
+            </li>
+        </ul>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function runSmartCounters() {
+            const subjectsCount = document.querySelectorAll('.subject-card:not(.tool-item)').length;
+            document.getElementById('subjects-counter').setAttribute('data-goal', subjectsCount);
+            const toolsCount = document.querySelectorAll('.tool-item').length > 0 ? 9 : 0;
+            document.getElementById('tools-counter').setAttribute('data-goal', toolsCount);
+            
+            // === هذا هو التعديل الوحيد في هذا الملف ===
+            const lecturesPerSubject = {
+                cpp: 6, // كان 5 وأصبح 6
+                math: 4,
+                computer: 1,
+                islamic: 1
+            };
+            // =========================================
+
+            const totalLectures = Object.values(lecturesPerSubject).reduce((sum, count) => sum + count, 0);
+            document.getElementById('lectures-counter').setAttribute('data-goal', totalLectures);
+            animateCounters();
+        }
+
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            if (counters.length === 0) return;
+            const speed = 150;
+            counters.forEach(counter => {
+                const updateCount = () => {
+                    const target = +counter.getAttribute('data-goal');
+                    const count = +counter.innerText;
+                    const increment = target / speed;
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + increment);
+                        setTimeout(updateCount, 10);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                updateCount();
+            });
+        }
+
+        const originalShowContent = window.showContent;
+        window.showContent = function() {
+            if (originalShowContent) { originalShowContent(); }
+            else { document.getElementById('login-section').style.display = 'none'; document.getElementById('content-section').style.display = 'block'; }
+            runSmartCounters();
+        };
+    </script>
+</body>
+</html>
