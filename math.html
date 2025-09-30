@@ -1,35 +1,75 @@
-pdf!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محاضرات الرياضيات</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- روابط الخطوط والأيقونات والتنسيقات -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- هام: تأكد من أن هذا الملف يقرأ نفس ملف التنسيقات الرئيسي -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="header-marquee"><p>This page was developed for IT students by Eng.Hameed Mohammed AlSamei.</p></div>
-    <canvas id="matrix-canvas"></canvas>
-    <button id="theme-toggle-btn" title="تبديل الوضع"><i class="fa-solid fa-sun"></i></button>
 
+    <!-- خلفية الماتريكس المتحركة -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- شريط المطور المتحرك في الأعلى -->
+    <div class="header-marquee">
+        <p>This page was developed for IT students by Eng. Hameed Mohammed Al-Sameai</p>
+    </div>
+
+    <!-- بطاقة المحتوى الرئيسية -->
     <div class="card" id="content-section" style="display: block;">
-        <a href="index.html" class="back-to-home-btn"><i class="fa-solid fa-arrow-right"></i> العودة للرئيسية</a>
+        
+        <!-- زر العودة للصفحة الرئيسية -->
+        <a href="index.html" class="back-to-home-btn">
+            <i class="fa-solid fa-arrow-right"></i> العودة للرئيسية
+        </a>
+        
         <h1><i class="fa-solid fa-calculator subject-icon-large"></i> الرياضيات</h1>
         <p>جميع المحاضرات والملفات الخاصة بمادة الرياضيات.</p>
+        
+        <!-- مربع البحث -->
         <div class="search-container">
             <input type="text" id="search-input" placeholder="ابحث في محاضرات الرياضيات...">
             <i class="fa-solid fa-search search-icon"></i>
         </div>
+        
+        <!-- قائمة الملفات -->
         <ul class="file-list">
-            <li data-date="2025-08-02"><span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i>(1)مستند من تكليف الرياضيات.pdf</span><a href="https://drive.google.com/file/d/1R4lrRqOcFUn0ZusdeMCkhrkA1amBNSoS/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a></li>
-            <li data-date="2025-08-03"><span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> رياضيات متقطعه(المنطق الرياضي).pdf</span><a href="https://drive.google.com/file/d/1R24mOLOwyZmIg_XAd0HRhk5rZa9umJf2/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a></li>
-            <li data-date="2025-08-06"><span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> الرياضيات المجموعات(الفئات) .pdf</span><a href="https://drive.google.com/file/d/1R5YHazCz7AVGxpbGFbQGk0MXDIqQVgnJ/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a></li>
-            <li data-date="2025-09-14"><span class="file-name"><i class="fa-solid fa-file-pdf file-icon ppt"></i> مقرر الرياضيات 1(المتباينات) </span><a href="https://drive.google.com/file/d/1TLvTAzVwVGqV_WzauSu9kJpRC1DCmJyW/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a></li>
-            <li data-date="2025-09-14"><span class="file-name"><i class="fa-solid fa-file-pdf file-icon ppt"></i>(1) تكليف في مادة الرياضيات المتقطعه.pdf</span><a href="https://drive.google.com/file/d/1TLvTAzVwVGqV_WzauSu9kJpRC1DCmJyW/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a></li>
+            <li data-date="2025-08-02">
+                <span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> (1) مستند من تكليف الرياضيات.pdf</span>
+                <a href="https://drive.google.com/file/d/1R4lrRqOcFUn0ZusdeMCkhrkA1amBNSoS/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a>
+            </li>
+            <li data-date="2025-08-03">
+                <span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> رياضيات متقطعه (المنطق الرياضي).pdf</span>
+                <a href="https://drive.google.com/file/d/1R24mOLOwyZmIg_XAd0HRhk5rZa9umJf2/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a>
+            </li>
+            <li data-date="2025-08-06">
+                <span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> الرياضيات المجموعات (الفئات).pdf</span>
+                <a href="https://drive.google.com/file/d/1R5YHazCz7AVGxpbGFbQGk0MXDIqQVgnJ/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a>
+            </li>
+            <li data-date="2025-09-14">
+                <span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> مقرر الرياضيات 1 (المتباينات).pdf</span>
+                <a href="https://drive.google.com/file/d/1TLvTAzVwVGqV_WzauSu9kJpRC1DCmJyW/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a>
+            </li>
+            <li data-date="2025-09-14">
+                <span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> (1) تكليف في مادة الرياضيات المتقطعه.pdf</span>
+                <a href="https://drive.google.com/file/d/1TLvTAzVwVGqV_WzauSu9kJpRC1DCmJyW/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a>
+            </li>
         </ul>
     </div>
+
+    <!-- زر العودة إلى الأعلى -->
     <button id="back-to-top-btn" title="العودة إلى الأعلى"><i class="fa-solid fa-arrow-up"></i></button>
+
+    <!-- ملف الجافاسكربت -->
     <script src="script.js"></script>
 </body>
 </html>
