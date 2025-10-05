@@ -26,7 +26,6 @@
             margin: 0;
             padding: 20px;
             text-align: center;
-            /*  الخطوة 1: إنشاء منظور ثلاثي الأبعاد للمشهد بأكمله */
             perspective: 1000px;
         }
         .maintenance-card {
@@ -36,22 +35,19 @@
             max-width: 500px;
             width: 100%;
             box-shadow: 0 25px 50px -12px var(--shadow-color);
-            /* الخطوة 2: إعداد البطاقة للتحويلات ثلاثية الأبعاد */
             transform-style: preserve-3d;
             transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
             position: relative;
         }
-        /* إضافة طبقة خلفية لإعطاء عمق إضافي */
         .maintenance-card::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
             border-radius: var(--border-radius);
-            transform: translateZ(-20px); /* دفع الطبقة للخلف */
+            transform: translateZ(-20px);
             pointer-events: none;
         }
-        /* الخطوة 3: جعل العناصر الداخلية تبدو وكأنها تطفو على مستويات مختلفة */
         .maintenance-card i, .maintenance-card h1, .maintenance-card p, .countdown-container {
             transform-style: preserve-3d;
             transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
@@ -61,13 +57,13 @@
             color: var(--accent-warning);
             margin-bottom: 24px;
             text-shadow: 0 0 20px var(--accent-warning);
-            transform: translateZ(50px); /* دفع الأيقونة للأمام */
+            transform: translateZ(50px);
         }
         .maintenance-card h1 {
             margin: 0 0 16px 0;
             font-size: 2rem;
             font-weight: 800;
-            transform: translateZ(30px); /* دفع العنوان للأمام ولكن أقل من الأيقونة */
+            transform: translateZ(30px);
         }
         .maintenance-card p {
             margin: 16px 0;
@@ -77,7 +73,7 @@
         }
         .countdown-container {
             margin-top: 24px;
-            transform: translateZ(40px); /* دفع العداد للأمام ليكون بارزًا */
+            transform: translateZ(40px);
         }
         .countdown-timer {
             display: flex; justify-content: center; gap: 15px; margin-top: 10px;
@@ -96,7 +92,7 @@
 </head>
 <body>
     <div class="maintenance-card" id="card">
-        <i class="fa-solid fa-person-digging"></i>
+        <i class="fa-solid fa-gears"></i>
         <h1>الموقع تحت الصيانة</h1>
         <p>نعتذر عن الإزعاج، فترة الصيانة الحالية قد تستغرق ما بين 24 إلى 48 ساعة لإتمام التحديثات اللازمة لتحسين تجربتكم. نشكر لكم تفهمكم وصبركم.</p>
         
@@ -150,14 +146,14 @@
             const centerX = card.offsetWidth / 2;
             const centerY = card.offsetHeight / 2;
 
-            const rotateX = ((y - centerY) / centerY) * -8; // دوران حول محور X
-            const rotateY = ((x - centerX) / centerX) * 8;  // دوران حول محور Y
+            const rotateX = ((y - centerY) / centerY) * -8;
+            const rotateY = ((x - centerX) / centerX) * 8;
 
             card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         });
 
         card.addEventListener('mouseleave', () => {
-            card.style.transform = 'rotateX(0) rotateY(0)'; // إعادة البطاقة لوضعها الأصلي
+            card.style.transform = 'rotateX(0) rotateY(0)';
         });
     </script>
 </body>
