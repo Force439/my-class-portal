@@ -3,34 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحت الصيانة</title>
+    <title>تحت الصيانة - تصميم ثلاثي الأبعاد</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
         :root {
-            --bg-color: #1f2937; --shadow-light: #2c3a4f; --shadow-dark: #121820;
-            --text-primary: #f9fafb; --accent-warning: #f59e0b; --border-radius: 15px;
+            --bg-color: #1a202c;
+            --card-bg: #2d3748;
+            --text-primary: #f7fafc;
+            --accent-warning: #f59e0b;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --border-radius: 20px;
         }
         body {
-            font-family: 'Tajawal', sans-serif; background-color: var(--bg-color); color: var(--text-primary);
-            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 20px; text-align: center;
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            /*  الخطوة 1: إنشاء منظور ثلاثي الأبعاد للمشهد بأكمله */
+            perspective: 1000px;
         }
         .maintenance-card {
-            background: var(--bg-color); padding: 40px; border-radius: var(--border-radius);
-            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light); max-width: 500px;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px var(--shadow-color);
+            /* الخطوة 2: إعداد البطاقة للتحويلات ثلاثية الأبعاد */
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+        }
+        /* إضافة طبقة خلفية لإعطاء عمق إضافي */
+        .maintenance-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            border-radius: var(--border-radius);
+            transform: translateZ(-20px); /* دفع الطبقة للخلف */
+            pointer-events: none;
+        }
+        /* الخطوة 3: جعل العناصر الداخلية تبدو وكأنها تطفو على مستويات مختلفة */
+        .maintenance-card i, .maintenance-card h1, .maintenance-card p, .countdown-container {
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
         .maintenance-card i {
-            font-size: 4rem; color: var(--accent-warning); margin-bottom: 24px; text-shadow: 0 0 15px var(--accent-warning);
+            font-size: 4rem;
+            color: var(--accent-warning);
+            margin-bottom: 24px;
+            text-shadow: 0 0 20px var(--accent-warning);
+            transform: translateZ(50px); /* دفع الأيقونة للأمام */
         }
-        .maintenance-card h1 { margin: 0 0 16px 0; font-size: 2rem; font-weight: 800; }
-        .maintenance-card p { margin: 0; font-size: 1.2rem; line-height: 1.6; }
+        .maintenance-card h1 {
+            margin: 0 0 16px 0;
+            font-size: 2rem;
+            font-weight: 800;
+            transform: translateZ(30px); /* دفع العنوان للأمام ولكن أقل من الأيقونة */
+        }
+        .maintenance-card p {
+            margin: 16px 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            transform: translateZ(20px);
+        }
+        .countdown-container {
+            margin-top: 24px;
+            transform: translateZ(40px); /* دفع العداد للأمام ليكون بارزًا */
+        }
+        .countdown-timer {
+            display: flex; justify-content: center; gap: 15px; margin-top: 10px;
+        }
+        .countdown-item {
+            background: #1a202c; padding: 10px 15px; border-radius: 8px;
+        }
+        .countdown-item span { display: block; }
+        .countdown-number { font-size: 2rem; font-weight: 700; color: var(--accent-warning); }
+        .countdown-label { font-size: 0.8rem; text-transform: uppercase; }
+        .notice {
+            font-size: 0.9rem; color: #a0aec0; margin-top: 20px;
+            transform: translateZ(10px);
+        }
     </style>
 </head>
 <body>
-    <div class="maintenance-card">
+    <div class="maintenance-card" id="card">
         <i class="fa-solid fa-person-digging"></i>
         <h1>الموقع تحت الصيانة</h1>
-        <p>نحن نقوم حالياً بتحديثات لتحسين تجربتكم. نرجو منكم العودة مرة أخرى قريباً. وشكراً لتفهمكم.</p>
+        <p>نعتذر عن الإزعاج، فترة الصيانة الحالية قد تستغرق ما بين 24 إلى 48 ساعة لإتمام التحديثات اللازمة لتحسين تجربتكم. نشكر لكم تفهمكم وصبركم.</p>
+        
+        <div class="countdown-container">
+            <p>الوقت المتبقي المتوقع للعودة:</p>
+            <div id="countdown" class="countdown-timer">
+                <div class="countdown-item"><span id="days" class="countdown-number">00</span><span class="countdown-label">أيام</span></div>
+                <div class="countdown-item"><span id="hours" class="countdown-number">00</span><span class="countdown-label">ساعات</span></div>
+                <div class="countdown-item"><span id="minutes" class="countdown-number">00</span><span class="countdown-label">دقائق</span></div>
+                <div class="countdown-item"><span id="seconds" class="countdown-number">00</span><span class="countdown-label">ثواني</span></div>
+            </div>
+        </div>
+
+        <p class="notice">ملاحظة: قد يتم إنجاز التحديث والعودة للعمل قبل انتهاء الوقت المحدد.</p>
     </div>
+
+    <script>
+        // --- إعدادات العد التنازلي ---
+        const hoursForCountdown = 48;
+        const countdownEndDate = new Date().getTime() + hoursForCountdown * 60 * 60 * 1000;
+
+        const countdownFunction = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = countdownEndDate - now;
+
+            if (distance < 0) {
+                clearInterval(countdownFunction);
+                document.getElementById("countdown").innerHTML = "<h2>أوشكنا على العودة!</h2>";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerText = String(days).padStart(2, '0');
+            document.getElementById("hours").innerText = String(hours).padStart(2, '0');
+            document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
+            document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
+        }, 1000);
+
+        // --- إعدادات التأثير ثلاثي الأبعاد عند حركة الفأرة ---
+        const card = document.getElementById('card');
+        const cardRect = card.getBoundingClientRect();
+
+        card.addEventListener('mousemove', (e) => {
+            const x = e.clientX - cardRect.left;
+            const y = e.clientY - cardRect.top;
+
+            const centerX = card.offsetWidth / 2;
+            const centerY = card.offsetHeight / 2;
+
+            const rotateX = ((y - centerY) / centerY) * -8; // دوران حول محور X
+            const rotateY = ((x - centerX) / centerX) * 8;  // دوران حول محور Y
+
+            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'rotateX(0) rotateY(0)'; // إعادة البطاقة لوضعها الأصلي
+        });
+    </script>
 </body>
 </html>
