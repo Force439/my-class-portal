@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحت الصيانة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* --- هذا الكود خاص بصفحة الصيانة فقط --- */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
+
+        :root {
+            --bg-color: #1f2937;
+            --shadow-light: #2c3a4f;
+            --shadow-dark: #121820;
+            --text-primary: #f9fafb;
+            --accent-warning: #f59e0b;
+            --border-radius: 15px;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .maintenance-card {
+            background: var(--bg-color);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+            max-width: 500px;
+        }
+
+        .maintenance-card i {
+            font-size: 4rem;
+            color: var(--accent-warning);
+            margin-bottom: 24px;
+            text-shadow: 0 0 15px var(--accent-warning);
+        }
+
+        .maintenance-card h1 {
+            margin: 0 0 16px 0;
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .maintenance-card p {
+            margin: 0;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="maintenance-card">
+        <i class="fa-solid fa-person-digging"></i>
+        <h1>الموقع تحت الصيانة</h1>
+        <p>نحن نقوم حالياً بتحديثات لتحسين تجربتكم. نرجو منكم العودة مرة أخرى قريباً. وشكراً لتفهمكم.</p>
+    </div>
+
+</body>
+</html>
