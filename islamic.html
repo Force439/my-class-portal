@@ -6,25 +6,33 @@
     <title>محاضرات الثقافة الإسلامية</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="header-marquee"><p>This page was developed for IT students by Eng.Hameed Mohammed AlSamei.</p></div>
-    <canvas id="matrix-canvas"></canvas>
-    <button id="theme-toggle-btn" title="تبديل الوضع"><i class="fa-solid fa-sun"></i></button>
 
-    <div class="card" id="content-section" style="display: block;">
-        <a href="index.html" class="back-to-home-btn"><i class="fa-solid fa-arrow-right"></i> العودة للرئيسية</a>
-        <h1><i class="fa-solid fa-book-quran subject-icon-large"></i> الثقافة الإسلامية</h1>
-        <p>جميع المحاضرات والملفات الخاصة بمادة الثقافة الإسلامية.</p>
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="ابحث في ملفات الثقافة...">
-            <i class="fa-solid fa-search search-icon"></i>
+    <div id="page-container" class="main-container">
+        <div class="card" id="content-section">
+            
+            <a href="index.html" class="back-to-home-btn">
+                <i class="fa-solid fa-arrow-right"></i> العودة للرئيسية
+            </a>
+            
+            <div id="section-header">
+                <h1><i class="fa-solid fa-book-quran subject-icon-large"></i> الثقافة الإسلامية</h1>
+                <p>جميع المحاضرات والملفات الخاصة بمادة الثقافة الإسلامية.</p>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="ابحث في ملفات الثقافة...">
+                <i class="fa-solid fa-search search-icon"></i>
+            </div>
+            
+            <!-- قائمة الملفات ستُملأ هنا ديناميكياً بواسطة script.js -->
+            <ul class="file-list">
+                <!-- سيتم عرض المحاضرات هنا بالشكل الجديد -->
+            </ul>
         </div>
-        <ul class="file-list">
-            <li data-date="2025-09-15"><span class="file-name"><i class="fa-solid fa-file-audio file-icon audio"></i> صوتيات د.أحمد عامر</span><a href="https://drive.google.com/file/d/1SaeAS7THdvptzNLBtgBYJx8qnL91cVq_/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a></li>
-        </ul>
     </div>
+
     <button id="back-to-top-btn" title="العودة إلى الأعلى"><i class="fa-solid fa-arrow-up"></i></button>
     <script src="script.js"></script>
 </body>
