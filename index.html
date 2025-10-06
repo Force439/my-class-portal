@@ -24,7 +24,6 @@
         .maintenance-card i {
             font-size: 4rem; color: var(--accent-warning); margin-bottom: 24px;
             text-shadow: 0 0 20px var(--accent-warning); transform: translateZ(50px);
-            /* إضافة حركة دوران للتروس */
             animation: spin 8s linear infinite;
         }
         @keyframes spin {
@@ -66,36 +65,42 @@
     </div>
 
     <script>
-        // --- إعدادات العد التنازلي الحقيقي ---
-        // الخطوة 1: حساب تاريخ الانتهاء مرة واحدة فقط.
-        // هذا التاريخ يمثل "الوقت الحالي + 34 ساعة".
-        const endDate = new Date();
-        endDate.setHours(endDate.getHours() + 34);
-        
-        // الخطوة 2: تحويل تاريخ الانتهاء إلى رقم (timestamp) لاستخدامه في العداد.
-        const countdownEndDate = endDate.getTime();
+        // --- إعدادات العد التنازلي الحقيقي والثابت ---
+        const hoursForCountdown = 34; // المدة المطلوبة بالكامل
+        let countdownEndDate;
+
+        // الخطوة 1: تحقق مما إذا كان هناك وقت نهاية محفوظ في localStorage
+        const savedEndDate = localStorage.getItem('maintenanceEndDate');
+
+        if (savedEndDate && new Date().getTime() < parseInt(savedEndDate)) {
+            // إذا وجد وقت محفوظ ولم ينتهِ بعد، استخدمه
+            countdownEndDate = parseInt(savedEndDate);
+        } else {
+            // إذا لم يوجد وقت محفوظ، أو كان الوقت المحفوظ قد انتهى،
+            // قم بإنشاء وقت جديد واحفظه في localStorage
+            countdownEndDate = new Date().getTime() + hoursForCountdown * 60 * 60 * 1000;
+            localStorage.setItem('maintenanceEndDate', countdownEndDate);
+        }
 
         const countdownFunction = setInterval(function() {
             const now = new Date().getTime();
             const distance = countdownEndDate - now;
 
-            // إذا انتهى العد التنازلي
             if (distance < 0) {
                 clearInterval(countdownFunction);
                 document.getElementById("countdown").innerHTML = "<h2>أوشكنا على العودة!</h2>";
-                // إيقاف حركة الأيقونة
                 const icon = document.querySelector('.maintenance-card i');
                 if (icon) icon.style.animationPlayState = 'paused';
+                // اختياري: حذف القيمة من localStorage بعد انتهاء العد
+                // localStorage.removeItem('maintenanceEndDate');
                 return;
             }
 
-            // حساب الأيام، الساعات، الدقائق، الثواني
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            // عرض النتيجة في العناصر المخصصة
             document.getElementById("days").innerText = String(days).padStart(2, '0');
             document.getElementById("hours").innerText = String(hours).padStart(2, '0');
             document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
