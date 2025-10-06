@@ -6,50 +6,109 @@
     <title>أدوات المطور</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="header-marquee"><p>This page was developed for IT students by Eng.Hameed Mohammed AlSamei.</p></div>
-    <canvas id="matrix-canvas"></canvas>
-    <button id="theme-toggle-btn" title="تبديل الوضع"><i class="fa-solid fa-sun"></i></button>
 
-    <div class="card" id="content-section" style="display: block;">
-        <a href="index.html" class="back-to-home-btn"><i class="fa-solid fa-arrow-right"></i> العودة للرئيسية</a>
-        <h1><i class="fa-solid fa-screwdriver-wrench subject-icon-large"></i> أدوات المطور</h1>
-        <p>مجموعة من المواقع والأدوات الأساسية التي لا غنى عنها لأي طالب IT أو مبرمج.</p>
-        
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="ابحث في الأدوات...">
-            <i class="fa-solid fa-search search-icon"></i>
-        </div>
+    <div id="page-container" class="main-container">
+        <div class="card" id="content-section">
+            
+            <a href="index.html" class="back-to-home-btn">
+                <i class="fa-solid fa-arrow-right"></i> العودة للرئيسية
+            </a>
+            
+            <div id="section-header">
+                <h1><i class="fa-solid fa-screwdriver-wrench subject-icon-large"></i> أدوات المطور</h1>
+                <p>مجموعة من المواقع والأدوات الأساسية التي لا غنى عنها لأي طالب IT أو مبرمج.</p>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="ابحث في الأدوات...">
+                <i class="fa-solid fa-search search-icon"></i>
+            </div>
 
-        <div id="subjects-container">
-            <div class="subject-section">
-                <h3><i class="fa-solid fa-book-open subject-icon"></i> مواقع تعلم وتوثيق</h3>
-                <ul class="file-list">
-                    <li><span class="file-name"><i class="fa-brands fa-firefox-browser file-icon"></i> MDN Web Docs</span><a href="https://developer.mozilla.org/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
-                    <li><span class="file-name"><i class="fa-brands fa-stack-overflow file-icon"></i> Stack Overflow</span><a href="https://stackoverflow.com/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
-                    <li><span class="file-name"><i class="fa-brands fa-css3-alt file-icon"></i> CSS-Tricks</span><a href="https://css-tricks.com/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
-                </ul>
-            </div>
-            <div class="subject-section">
-                <h3><i class="fa-solid fa-palette subject-icon"></i> أدوات تصميم وأيقونات</h3>
-                <ul class="file-list">
-                    <li><span class="file-name"><i class="fa-solid fa-font-awesome file-icon"></i> Font Awesome</span><a href="https://fontawesome.com/icons" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
-                    <li><span class="file-name"><i class="fa-solid fa-palette file-icon"></i> Coolors</span><a href="https://coolors.co/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
-                    <li><span class="file-name"><i class="fa-solid fa-image file-icon"></i> Unsplash</span><a href="https://unsplash.com/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
-                </ul>
-            </div>
-            <div class="subject-section">
-                <h3><i class="fa-solid fa-code-branch subject-icon"></i> منصات استضافة ومشاركة الكود</h3>
-                <ul class="file-list">
-                    <li><span class="file-name"><i class="fa-brands fa-github file-icon"></i> GitHub</span><a href="https://github.com/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
-                    <li><span class="file-name"><i class="fa-solid fa-cloud-arrow-up file-icon"></i> Netlify</span><a href="https://www.netlify.com/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
-                    <li><span class="file-name"><i class="fa-solid fa-pen-to-square file-icon"></i> CodePen</span><a href="https://codepen.io/" class="download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></li>
-                </ul>
+            <div id="tools-container">
+                <div class="subject-section">
+                    <h3><i class="fa-solid fa-book-open"></i> مواقع تعلم وتوثيق</h3>
+                    <ul class="file-list">
+                        <li>
+                            <div class="file-info">
+                                <div class="file-icon-wrapper" style="background-color: #f9731633; color: #f97316;"><i class="fa-brands fa-firefox-browser"></i></div>
+                                <div class="file-details"><span class="file-name">MDN Web Docs</span><span class="file-meta">المرجع الأول لتقنيات الويب</span></div>
+                            </div>
+                            <div class="file-buttons"><a href="https://developer.mozilla.org/" class="primary-btn download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></div>
+                        </li>
+                        <li>
+                            <div class="file-info">
+                                <div class="file-icon-wrapper" style="background-color: #f59e0b33; color: #f59e0b;"><i class="fa-brands fa-stack-overflow"></i></div>
+                                <div class="file-details"><span class="file-name">Stack Overflow</span><span class="file-meta">أكبر مجتمع للمبرمجين</span></div>
+                            </div>
+                            <div class="file-buttons"><a href="https://stackoverflow.com/" class="primary-btn download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></div>
+                        </li>
+                        <li>
+                            <div class="file-info">
+                                <div class="file-icon-wrapper" style="background-color: #3b82f633; color: #3b82f6;"><i class="fa-brands fa-css3-alt"></i></div>
+                                <div class="file-details"><span class="file-name">CSS-Tricks</span><span class="file-meta">مقالات وخدع في CSS</span></div>
+                            </div>
+                            <div class="file-buttons"><a href="https://css-tricks.com/" class="primary-btn download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="subject-section">
+                    <h3><i class="fa-solid fa-palette"></i> أدوات تصميم وأيقونات</h3>
+                    <ul class="file-list">
+                        <li>
+                            <div class="file-info">
+                                <div class="file-icon-wrapper" style="background-color: #8b5cf633; color: #8b5cf6;"><i class="fa-solid fa-font-awesome"></i></div>
+                                <div class="file-details"><span class="file-name">Font Awesome</span><span class="file-meta">مكتبة أيقونات ضخمة</span></div>
+                            </div>
+                            <div class="file-buttons"><a href="https://fontawesome.com/icons" class="primary-btn download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></div>
+                        </li>
+                        <li>
+                            <div class="file-info">
+                                <div class="file-icon-wrapper" style="background-color: #ec489933; color: #ec4899;"><i class="fa-solid fa-palette"></i></div>
+                                <div class="file-details"><span class="file-name">Coolors</span><span class="file-meta">لتوليد تناسقات لونية</span></div>
+                            </div>
+                            <div class="file-buttons"><a href="https://coolors.co/" class="primary-btn download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></div>
+                        </li>
+                        <li>
+                            <div class="file-info">
+                                <div class="file-icon-wrapper" style="background-color: #06b6d433; color: #06b6d4;"><i class="fa-solid fa-image"></i></div>
+                                <div class="file-details"><span class="file-name">Unsplash</span><span class="file-meta">صور مجانية عالية الجودة</span></div>
+                            </div>
+                            <div class="file-buttons"><a href="https://unsplash.com/" class="primary-btn download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="subject-section">
+                    <h3><i class="fa-solid fa-code-branch"></i> منصات استضافة ومشاركة الكود</h3>
+                    <ul class="file-list">
+                        <li>
+                            <div class="file-info">
+                                <div class="file-icon-wrapper" style="background-color: #9ca3af33; color: #9ca3af;"><i class="fa-brands fa-github"></i></div>
+                                <div class="file-details"><span class="file-name">GitHub</span><span class="file-meta">لاستضافة المشاريع والتعاون</span></div>
+                            </div>
+                            <div class="file-buttons"><a href="https://github.com/" class="primary-btn download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></div>
+                        </li>
+                        <li>
+                            <div class="file-info">
+                                <div class="file-icon-wrapper" style="background-color: #22c55e33; color: #22c55e;"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                                <div class="file-details"><span class="file-name">Netlify</span><span class="file-meta">استضافة سريعة للمواقع</span></div>
+                            </div>
+                            <div class="file-buttons"><a href="https://www.netlify.com/" class="primary-btn download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></div>
+                        </li>
+                        <li>
+                            <div class="file-info">
+                                <div class="file-icon-wrapper" style="background-color: #6b728033; color: #6b7280;"><i class="fa-solid fa-pen-to-square"></i></div>
+                                <div class="file-details"><span class="file-name">CodePen</span><span class="file-meta">لتجربة أكواد الواجهة الأمامية</span></div>
+                            </div>
+                            <div class="file-buttons"><a href="https://codepen.io/" class="primary-btn download-btn" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> زيارة</a></div>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
+
     <button id="back-to-top-btn" title="العودة إلى الأعلى"><i class="fa-solid fa-arrow-up"></i></button>
     <script src="script.js"></script>
 </body>
