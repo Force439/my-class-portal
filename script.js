@@ -988,5 +988,5 @@ async function loadNsfwModelAndShowPopup() {
 
     setTimeout(() => {
         popup.classList.remove('active');
-    }, 3000);
+    }, 15000);
 }
