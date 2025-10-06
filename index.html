@@ -6,88 +6,47 @@
     <title>تحت الصيانة - تصميم ثلاثي الأبعاد</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+        /* ... نفس كود CSS السابق ... */
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
         :root {
-            --bg-color: #1a202c;
-            --card-bg: #2d3748;
-            --text-primary: #f7fafc;
-            --accent-warning: #f59e0b;
-            --shadow-color: rgba(0, 0, 0, 0.5);
-            --border-radius: 20px;
+            --bg-color: #1a202c; --card-bg: #2d3748; --text-primary: #f7fafc;
+            --accent-warning: #f59e0b; --shadow-color: rgba(0, 0, 0, 0.5); --border-radius: 20px;
         }
         body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            perspective: 1000px;
+            font-family: 'Tajawal', sans-serif; background-color: var(--bg-color); color: var(--text-primary);
+            display: flex; justify-content: center; align-items: center; height: 100vh;
+            margin: 0; padding: 20px; text-align: center; perspective: 1000px;
         }
         .maintenance-card {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: var(--border-radius);
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 25px 50px -12px var(--shadow-color);
-            transform-style: preserve-3d;
-            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            position: relative;
+            background: var(--card-bg); padding: 40px; border-radius: var(--border-radius);
+            max-width: 500px; width: 100%; box-shadow: 0 25px 50px -12px var(--shadow-color);
+            transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1); position: relative;
         }
         .maintenance-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-            border-radius: var(--border-radius);
-            transform: translateZ(-20px);
-            pointer-events: none;
+            border-radius: var(--border-radius); transform: translateZ(-20px); pointer-events: none;
         }
         .maintenance-card i, .maintenance-card h1, .maintenance-card p, .countdown-container {
-            transform-style: preserve-3d;
-            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
         .maintenance-card i {
-            font-size: 4rem;
-            color: var(--accent-warning);
-            margin-bottom: 24px;
-            text-shadow: 0 0 20px var(--accent-warning);
-            transform: translateZ(50px);
+            font-size: 4rem; color: var(--accent-warning); margin-bottom: 24px;
+            text-shadow: 0 0 20px var(--accent-warning); transform: translateZ(50px);
         }
         .maintenance-card h1 {
-            margin: 0 0 16px 0;
-            font-size: 2rem;
-            font-weight: 800;
-            transform: translateZ(30px);
+            margin: 0 0 16px 0; font-size: 2rem; font-weight: 800; transform: translateZ(30px);
         }
         .maintenance-card p {
-            margin: 16px 0;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            transform: translateZ(20px);
+            margin: 16px 0; font-size: 1.1rem; line-height: 1.6; transform: translateZ(20px);
         }
-        .countdown-container {
-            margin-top: 24px;
-            transform: translateZ(40px);
-        }
-        .countdown-timer {
-            display: flex; justify-content: center; gap: 15px; margin-top: 10px;
-        }
-        .countdown-item {
-            background: #1a202c; padding: 10px 15px; border-radius: 8px;
-        }
+        .countdown-container { margin-top: 24px; transform: translateZ(40px); }
+        .countdown-timer { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
+        .countdown-item { background: #1a202c; padding: 10px 15px; border-radius: 8px; }
         .countdown-item span { display: block; }
         .countdown-number { font-size: 2rem; font-weight: 700; color: var(--accent-warning); }
         .countdown-label { font-size: 0.8rem; text-transform: uppercase; }
-        .notice {
-            font-size: 0.9rem; color: #a0aec0; margin-top: 20px;
-            transform: translateZ(10px);
-        }
+        .notice { font-size: 0.9rem; color: #a0aec0; margin-top: 20px; transform: translateZ(10px); }
     </style>
 </head>
 <body>
@@ -110,9 +69,19 @@
     </div>
 
     <script>
-        // --- إعدادات العد التنازلي ---
+        // --- إعدادات العد التنازلي الحقيقي ---
         const hoursForCountdown = 48;
-        const countdownEndDate = new Date().getTime() + hoursForCountdown * 60 * 60 * 1000;
+        let countdownEndDate;
+
+        // تحقق مما إذا كان هناك وقت نهاية محفوظ في localStorage
+        if (localStorage.getItem('maintenanceEndDate')) {
+            // إذا وجد، استخدمه
+            countdownEndDate = parseInt(localStorage.getItem('maintenanceEndDate'));
+        } else {
+            // إذا لم يوجد، قم بإنشاء واحد جديد واحفظه
+            countdownEndDate = new Date().getTime() + hoursForCountdown * 60 * 60 * 1000;
+            localStorage.setItem('maintenanceEndDate', countdownEndDate);
+        }
 
         const countdownFunction = setInterval(function() {
             const now = new Date().getTime();
@@ -121,6 +90,8 @@
             if (distance < 0) {
                 clearInterval(countdownFunction);
                 document.getElementById("countdown").innerHTML = "<h2>أوشكنا على العودة!</h2>";
+                // اختياري: حذف القيمة من localStorage بعد انتهاء العد
+                localStorage.removeItem('maintenanceEndDate');
                 return;
             }
 
@@ -135,23 +106,18 @@
             document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
         }, 1000);
 
-        // --- إعدادات التأثير ثلاثي الأبعاد عند حركة الفأرة ---
+        // --- إعدادات التأثير ثلاثي الأبعاد (لا تغيير هنا) ---
         const card = document.getElementById('card');
-        const cardRect = card.getBoundingClientRect();
-
         card.addEventListener('mousemove', (e) => {
+            const cardRect = card.getBoundingClientRect();
             const x = e.clientX - cardRect.left;
             const y = e.clientY - cardRect.top;
-
             const centerX = card.offsetWidth / 2;
             const centerY = card.offsetHeight / 2;
-
             const rotateX = ((y - centerY) / centerY) * -8;
             const rotateY = ((x - centerX) / centerX) * 8;
-
             card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         });
-
         card.addEventListener('mouseleave', () => {
             card.style.transform = 'rotateX(0) rotateY(0)';
         });
