@@ -3,125 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحت الصيانة - عداد حقيقي</title>
+    <title>بوابة المحاضرات الرقمية</title>
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
-        :root {
-            --bg-color: #1a202c; --card-bg: #2d3748; --text-primary: #f7fafc;
-            --accent-warning: #f59e0b; --shadow-color: rgba(0, 0, 0, 0.5); --border-radius: 20px;
-        }
-        body {
-            font-family: 'Tajawal', sans-serif; background-color: var(--bg-color); color: var(--text-primary);
-            display: flex; justify-content: center; align-items: center; height: 100vh;
-            margin: 0; padding: 20px; text-align: center; perspective: 1000px;
-        }
-        .maintenance-card {
-            background: var(--card-bg); padding: 40px; border-radius: var(--border-radius);
-            max-width: 500px; width: 100%; box-shadow: 0 25px 50px -12px var(--shadow-color);
-            transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1); position: relative;
-        }
-        .maintenance-card i {
-            font-size: 4rem; color: var(--accent-warning); margin-bottom: 24px;
-            text-shadow: 0 0 20px var(--accent-warning); transform: translateZ(50px);
-            animation: spin 8s linear infinite;
-        }
-        @keyframes spin {
-            from { transform: translateZ(50px) rotate(0deg); }
-            to { transform: translateZ(50px) rotate(360deg); }
-        }
-        .maintenance-card h1 {
-            margin: 0 0 16px 0; font-size: 2rem; font-weight: 800; transform: translateZ(30px);
-        }
-        .maintenance-card p {
-            margin: 16px 0; font-size: 1.1rem; line-height: 1.6; transform: translateZ(20px);
-        }
-        .countdown-container { margin-top: 24px; transform: translateZ(40px); }
-        .countdown-timer { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
-        .countdown-item { background: #1a202c; padding: 10px 15px; border-radius: 8px; }
-        .countdown-item span { display: block; }
-        .countdown-number { font-size: 2rem; font-weight: 700; color: var(--accent-warning); }
-        .countdown-label { font-size: 0.8rem; text-transform: uppercase; }
-        .notice { font-size: 0.9rem; color: #a0aec0; margin-top: 20px; transform: translateZ(10px); }
-    </style>
 </head>
 <body>
-    <div class="maintenance-card" id="card">
-        <i class="fa-solid fa-gears"></i>
-        <h1>الموقع تحت الصيانة</h1>
-        <p>نعتذر عن الإزعاج، نحن نقوم حالياً بتحديثات هامة لتحسين تجربتكم. نشكر لكم تفهمكم وصبركم.</p>
-        
-        <div class="countdown-container">
-            <p>الوقت المتبقي المتوقع للعودة:</p>
-            <div id="countdown" class="countdown-timer">
-                <div class="countdown-item"><span id="days" class="countdown-number">00</span><span class="countdown-label">أيام</span></div>
-                <div class="countdown-item"><span id="hours" class="countdown-number">00</span><span class="countdown-label">ساعات</span></div>
-                <div class="countdown-item"><span id="minutes" class="countdown-number">00</span><span class="countdown-label">دقائق</span></div>
-                <div class="countdown-item"><span id="seconds" class="countdown-number">00</span><span class="countdown-label">ثواني</span></div>
+
+    <!-- شاشة التحميل الأولية -->
+    <div id="loader">
+        <div class="spinner"></div>
+        <p class="dev-credit-loader">Designed & Developed by Eng. Hameed Al-Sameai</p>
+    </div>
+
+    <!-- المحتوى الفعلي للصفحة -->
+    <header class="main-header">
+        <div class="logo">بوابة المحاضرات الرقمية</div>
+        <div class="developer-credit">Designed & Developed by: Eng. Hameed Al-Sameai</div>
+    </header>
+
+    <div class="floating-controls">
+        <button id="theme-settings-btn" title="تغيير المظهر"><i class="fa-solid fa-palette"></i></button>
+        <button id="help-tour-btn" title="جولة تعليمية"><i class="fa-solid fa-question-circle"></i></button>
+        <button id="support-btn" title="ادعم المطور"><i class="fa-solid fa-wallet"></i></button>
+    </div>
+
+    <div class="main-container">
+        <div id="auth-section" class="card auth-card" style="display: none;">
+            <h1>بوابة المحاضرات الرقمية</h1>
+            <p>مرحباً بعودتك! أدخل بياناتك للوصول.</p>
+            <div id="login-view">
+                <input type="text" id="login-id-input" placeholder="أدخل رقمك التعريفي (ID)">
+                <input type="password" id="login-password-input" placeholder="أدخل كلمة المرور">
+                <button id="login-button" class="primary-btn">الوصول إلى البوابة</button>
+                <p id="login-error-message" class="error-message" style="display: none;"></p>
+                <p class="auth-switch">ليس لديك حساب؟ <a href="#" id="show-register-view">إنشاء حساب جديد</a></p>
+            </div>
+            <div id="register-view" style="display: none;">
+                <input type="password" id="register-password-input" placeholder="اختر كلمة مرور">
+                <button id="register-button" class="primary-btn">إنشاء حساب وتوليد ID</button>
+                <p class="auth-switch">لديك حساب بالفعل؟ <a href="#" id="show-login-view">تسجيل الدخول</a></p>
+            </div>
+            <div id="id-display-view" style="display: none;">
+                <h2>تم إنشاء حسابك بنجاح!</h2>
+                <p>هذا هو رقمك التعريفي (ID). احتفظ به للدخول مستقبلاً.</p>
+                <div class="id-display-box">
+                    <span id="generated-id"></span>
+                    <button id="copy-id-button" class="secondary-btn"><i class="fa-solid fa-copy"></i></button>
+                </div>
+                <p id="copy-success-message" class="success-message">تم النسخ بنجاح!</p>
+                <button id="proceed-to-content-button" class="primary-btn" disabled>المتابعة إلى البوابة</button>
             </div>
         </div>
 
-        <p class="notice">ملاحظة: قد يتم إنجاز التحديث والعودة للعمل قبل انتهاء الوقت المحدد.</p>
+        <div id="content-section" style="display: none;">
+            <div id="tip-container">
+                <i class="fa-solid fa-lightbulb"></i>
+                <p id="programming-tip">...</p>
+            </div>
+            <div class="card">
+                <div id="upload-section">
+                    <h2><i class="fa-solid fa-plus-circle"></i> أضف مساهمتك</h2>
+                    <div id="step-1-file" class="upload-step active"><p class="step-title">الخطوة 1: اختر الملف</p><div class="file-drop-area"><i class="fa-solid fa-cloud-arrow-up"></i><p>اسحب الملف إلى هنا أو انقر للاختيار</p><input type="file" id="file-input" hidden></div></div>
+                    <div id="step-2-details" class="upload-step"><p class="step-title">الخطوة 2: أضف التفاصيل</p><div id="selected-file-info">الملف المحدد: <span>...</span></div><input type="text" id="file-display-name-input" placeholder="أدخل اسماً وصفياً للملف"><input type="text" id="user-name-input" placeholder="أدخل اسمك ليظهر مع الملف"><div class="step-nav"><button id="back-to-step-1" class="secondary-btn">العودة</button><button id="next-to-step-3" class="primary-btn">التالي</button></div></div>
+                    <div id="step-3-destination" class="upload-step"><p class="step-title">الخطوة 3: اختر القسم</p><div class="upload-options"><select id="section-selector"></select><button id="add-new-section-btn" title="إضافة قسم جديد" class="secondary-btn"><i class="fa-solid fa-folder-plus"></i></button></div><div class="step-nav"><button id="back-to-step-2" class="secondary-btn">العودة</button><button id="upload-button" class="primary-btn"><i class="fa-solid fa-paper-plane"></i> إدراج الملف</button></div></div>
+                    <div id="upload-status" style="display: none;"><div id="status-scanning" class="status-item"><div class="spinner"></div><p>جاري فحص الملف... <span id="scan-progress">0%</span></p></div><div id="status-success" class="status-item"><i class="fa-solid fa-check-circle"></i><p>آمن! تم إدراج الملف بنجاح.</p><button id="undo-button" class="secondary-btn">تراجع (<span id="undo-timer">5</span>)</button></div><div id="status-error" class="status-item"><i class="fa-solid fa-times-circle"></i><p id="error-reason">...</p></div></div>
+                </div>
+            </div>
+            <div class="card announcements-card"><div class="announcements-section"><h2><i class="fa-solid fa-bell"></i> أخبار هامة</h2><div class="announcement-item"><p><span class="doctor-name">د/أحمد عامر:</span> بحث في مادة الثقافة الإسلامية يوم الثلاثاء  بتأريخ2025/10/7</p></div></div></div>
+            <div class="card"><div class="stats-container"><div class="stat-item"><i class="fa-solid fa-file-alt"></i><h3 id="lectures-counter" class="stat-number">0</h3><p>محاضرة وملف</p></div><div class="stat-item"><i class="fa-solid fa-folder-open"></i><h3 id="subjects-counter" class="stat-number">0</h3><p>مادة دراسية</p></div><div class="stat-item"><i class="fa-solid fa-screwdriver-wrench"></i><h3 id="tools-counter" class="stat-number">0</h3><p>أداة للمطور</p></div></div></div>
+            <div class="card"><h2><i class="fa-solid fa-layer-group"></i> المواد الدراسية</h2><div id="main-subjects-grid" class="subjects-grid"><div class="subject-card-wrapper"><a href="cpp.html" class="subject-card"><i class="fa-solid fa-code subject-icon-large"></i><h3>أساسيات لغة C++</h3><p>محاضرات وتمارين لغة C++.</p></a></div><div class="subject-card-wrapper"><a href="math.html" class="subject-card"><i class="fa-solid fa-calculator subject-icon-large"></i><h3>الرياضيات</h3><p>محاضرات الرياضيات المتقطعة.</p></a></div><div class="subject-card-wrapper"><a href="computer.html" class="subject-card"><i class="fa-solid fa-laptop subject-icon-large"></i><h3>مهارات الحاسوب</h3><p>المقررات النظرية والعملية.</p></a></div><div class="subject-card-wrapper"><a href="islamic.html" class="subject-card"><i class="fa-solid fa-book-quran subject-icon-large"></i><h3>الثقافة الإسلامية</h3><p>المحاضرات الصوتية والملفات.</p></a></div><div class="subject-card-wrapper"><a href="tools.html" class="subject-card"><i class="fa-solid fa-screwdriver-wrench subject-icon-large"></i><h3>أدوات المطور</h3><p>مواقع وروابط مفيدة.</p></a></div></div></div>
+        </div>
     </div>
+    <!-- النوافذ المنبثقة (Modals) -->
+    <div id="add-section-modal" class="modal"><div class="modal-content"><span class="close-modal-btn">&times;</span><h2>إنشاء قسم جديد</h2><input type="text" id="new-section-name-input" placeholder="اسم القسم الجديد"><button id="create-section-btn" class="primary-btn">إنشاء وإضافة</button></div></div>
+    <div id="onboarding-modal" class="modal tour-modal"><div class="modal-content"><span class="close-modal-btn tour-finish">&times;</span><div class="tour-step active"><i class="fa-solid fa-hand-sparkles tour-icon"></i><h2>مرحباً بك في البوابة الرقمية!</h2><p>هذه جولة سريعة لتعريفك بأهم الميزات.</p><div class="tour-nav"><button class="primary-btn tour-next">لنبدأ!</button></div></div><div class="tour-step"><i class="fa-solid fa-id-card tour-icon"></i><h2>هويتك الرقمية</h2><p>لقد حصلت على رقم تعريفي (ID) فريد. هذا الرقم مع كلمة مرورك هما مفتاحك للدخول والمشاركة. احتفظ بهما في مكان آمن!</p><div class="tour-nav"><button class="secondary-btn tour-prev">السابق</button><button class="primary-btn tour-next">التالي</button></div></div><div class="tour-step"><i class="fa-solid fa-share-alt tour-icon"></i><h2>شارك معرفتك</h2><p>يمكنك إضافة ملفات ومحاضرات مفيدة عبر قسم "أضف مساهمتك". سيتم فحص الملفات لضمان أمان الجميع.</p><div class="tour-nav"><button class="secondary-btn tour-prev">السابق</button><button class="primary-btn tour-next">التالي</button></div></div><div class="tour-step"><i class="fa-solid fa-palette tour-icon"></i><h2>خصص تجربتك</h2><p>اضغط على أيقونة لوحة الألوان <i class="fa-solid fa-palette"></i> في الأعلى لتغيير مظهر البوابة واختيار الستايل الذي يناسبك.</p><div class="tour-nav"><button class="secondary-btn tour-prev">السابق</button><button class="primary-btn tour-finish">فهمت، لننطلق!</button></div></div></div></div>
+    <div id="theme-picker-modal" class="modal"><div class="modal-content"><span class="close-modal-btn">&times;</span><h2>اختر المظهر المفضل</h2><div class="theme-options-grid"><div class="theme-option" data-theme="theme-aurora"><div class="theme-preview"><span style="background: #3b82f6;"></span><span style="background: #8b5cf6;"></span><span style="background: #1f2937;"></span></div><p>Aurora</p></div><div class="theme-option" data-theme="theme-cyberpunk"><div class="theme-preview"><span style="background: #ec4899;"></span><span style="background: #06b6d4;"></span><span style="background: #000000;"></span></div><p>Cyberpunk Neon</p></div><div class="theme-option" data-theme="theme-solarized"><div class="theme-preview"><span style="background: #268bd2;"></span><span style="background: #859900;"></span><span style="background: #fdf6e3;"></span></div><p>Solarized Light</p></div><div class="theme-option" data-theme="theme-crimson"><div class="theme-preview"><span style="background: #dc2626;"></span><span style="background: #6b7280;"></span><span style="background: #111827;"></span></div><p>Crimson Night</p></div></div></div></div>
+    <div id="onecash-support-modal" class="modal"><div class="modal-content support-modal-content onecash-theme"><span class="close-modal-btn">&times;</span><div class="onecash-logo-container"><div class="onecash-sim-icon"><div class="sim-cutout"></div><div class="sim-line-1"></div><div class="sim-line-2"></div></div><span class="onecash-text-ar">كاش</span><span class="onecash-text-en">ONE</span></div><h2>تقديركم يضيء طريقنا</h2><p class="support-subtitle">جولة تفاعلية اختيارية لكيفية تقديم الدعم بكل سهولة</p><div class="simulation-container"><div class="virtual-phone"><div class="phone-screen"><div class="phone-top-bar"><span>٤:١٠ م</span><span><i class="fa-solid fa-signal"></i> <i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-battery-full"></i></span></div><div class="simulation-screen active" id="sim-screen-1"><div class="sim-header-banner">حوالات الشبكات المحلية عبر ون كاش أسهل</div><div class="sim-grid"><div class="sim-grid-item"><i class="fa-solid fa-arrow-down-to-bracket"></i> استلام أموال</div><div class="sim-grid-item"><i class="fa-solid fa-arrow-up-from-bracket"></i> تحويل أموال</div><div class="sim-grid-item"><i class="fa-solid fa-receipt"></i> سداد فواتير</div><div class="sim-grid-item"><i class="fa-solid fa-store"></i> دفع مشتريات وخدمات</div></div></div><div class="simulation-screen" id="sim-screen-2"><div class="sim-list-header">تحويل أموال إلى</div><div class="sim-list"><div class="sim-list-item">عميل ون كاش <i class="fa-solid fa-chevron-left"></i></div><div class="sim-list-item">شبكات محلية <i class="fa-solid fa-chevron-left"></i></div><div class="sim-list-item">غير عميل <i class="fa-solid fa-chevron-left"></i></div></div></div><div class="simulation-screen" id="sim-screen-3"><div class="sim-form-header">أدخل رقم موبايل المستلم</div><div class="sim-input-field"><i class="fa-solid fa-user"></i> <span id="sim-phone-number"></span></div><div class="sim-form-header">مبلغ العملية</div><div class="sim-input-field"><span id="sim-amount"></span></div></div><div class="simulation-screen" id="sim-screen-4"><div class="sim-details-header">تفاصيل العملية</div><div class="sim-details-card"><div class="sim-details-row"><span>المبلغ</span><span>500.00 د.ي</span></div><div class="sim-details-row"><span>الرسوم</span><span>0.00 د.ي</span></div><hr><div class="sim-details-row total"><span>الإجمالي</span><span>500.00 د.ي</span></div></div><div class="sim-confirm-button">تأكيد</div></div><div class="animated-pointer" id="animated-pointer"><i class="fa-solid fa-hand-pointer"></i></div></div></div><div class="explanation-panel"><div class="explanation-step active" data-step="0"><h3>مبادرة تقدير</h3><p>هذه البوابة هي جهد شخصي مستمر، وإذا رغبتم في تقديم لمسة تقدير لهذا المجهود، فهذه الجولة توضح لكم كيف. دعمكم، مهما كان بسيطاً، هو وقود نستمد منه طاقتنا للاستمرار والتطوير.</p><p><strong>اضغط "ابدأ" لخوض التجربة.</strong></p></div><div class="explanation-step" data-step="1"><h3>الخطوة الأولى: تحويل أموال</h3><p>بعد فتح تطبيق "ون كاش"، ستظهر لك الواجهة الرئيسية. الخطوة الأولى هي الضغط على خيار <strong>"تحويل أموال"</strong> لبدء عملية إرسال الدعم.</p></div><div class="explanation-step" data-step="2"><h3>الخطوة الثانية: اختيار المستلم</h3><p>سيطلب منك التطبيق تحديد نوع المستلم. بما أن الدعم سيصل إلى حساب ون كاش آخر، اختر بكل بساطة <strong>"عميل ون كاش"</strong>.</p></div><div class="explanation-step" data-step="3"><h3>الخطوة الثالثة: إدخال البيانات</h3><p>هنا، قم بإدخال رقم هاتف المطور <strong>(778944857)</strong> والمبلغ الذي تود إرساله بكل حرية. لا يوجد مبلغ محدد، فكل تقدير له قيمته لدينا.</p></div><div class="explanation-step" data-step="4"><h3>الخطوة الرابعة: التأكيد النهائي</h3><p>قبل الإرسال، ستظهر لك شاشة للتأكد من تفاصيل العملية. تأكد من اسم المستلم "حميد السامعي" ثم اضغط <strong>"تأكيد"</strong> لإتمام المبادرة.</p></div><div class="explanation-step" data-step="5"><h3>شكراً من القلب</h3><p>بهذا تكون قد اكتملت لفتتكم الكريمة. كل الشكر والتقدير لكم على دعمكم الذي يعني لنا الكثير ويشجعنا على تقديم الأفضل دائماً.</p><hr><p class="agent-note"><i class="fa-solid fa-store"></i> <strong>ملاحظة:</strong> إذا لم تكن تستخدم تطبيق ون كاش، يمكنك أيضاً تقديم الدعم عبر أي وكيل خدمة قريب منك باستخدام نفس الرقم.</p><div class="support-number-card"><div class="number-info"><p>رقم الحساب (للدعم)</p><span id="onecash-number">778944857</span></div><button id="copy-number-btn" title="نسخ الرقم"><i class="fa-solid fa-copy"></i></button></div><p id="copy-support-success" class="success-message">تم نسخ الرقم بنجاح!</p></div></div></div><div class="simulation-controls"><button id="sim-prev-btn" disabled><i class="fa-solid fa-arrow-right"></i> السابق</button><button id="sim-next-btn">ابدأ <i class="fa-solid fa-arrow-left"></i></button></div></div></div>
+    <button id="back-to-top-btn" title="العودة إلى الأعلى"><i class="fa-solid fa-arrow-up"></i></button>
+    <div class="fixed-bottom-banner"><i class="fa-solid fa-video"></i><p>فيديوهات مقررات مادة الحاسوب قريباً</p></div>
 
-    <script>
-        // --- إعدادات العد التنازلي الحقيقي والثابت ---
-        const hoursForCountdown = 34; // المدة المطلوبة بالكامل
-        let countdownEndDate;
-
-        // الخطوة 1: تحقق مما إذا كان هناك وقت نهاية محفوظ في localStorage
-        const savedEndDate = localStorage.getItem('maintenanceEndDate');
-
-        if (savedEndDate && new Date().getTime() < parseInt(savedEndDate)) {
-            // إذا وجد وقت محفوظ ولم ينتهِ بعد، استخدمه
-            countdownEndDate = parseInt(savedEndDate);
-        } else {
-            // إذا لم يوجد وقت محفوظ، أو كان الوقت المحفوظ قد انتهى،
-            // قم بإنشاء وقت جديد واحفظه في localStorage
-            countdownEndDate = new Date().getTime() + hoursForCountdown * 60 * 60 * 1000;
-            localStorage.setItem('maintenanceEndDate', countdownEndDate);
-        }
-
-        const countdownFunction = setInterval(function() {
-            const now = new Date().getTime();
-            const distance = countdownEndDate - now;
-
-            if (distance < 0) {
-                clearInterval(countdownFunction);
-                document.getElementById("countdown").innerHTML = "<h2>أوشكنا على العودة!</h2>";
-                const icon = document.querySelector('.maintenance-card i');
-                if (icon) icon.style.animationPlayState = 'paused';
-                // اختياري: حذف القيمة من localStorage بعد انتهاء العد
-                // localStorage.removeItem('maintenanceEndDate');
-                return;
-            }
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            document.getElementById("days").innerText = String(days).padStart(2, '0');
-            document.getElementById("hours").innerText = String(hours).padStart(2, '0');
-            document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
-            document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
-        }, 1000);
-
-        // --- إعدادات التأثير ثلاثي الأبعاد (لا تغيير هنا) ---
-        const card = document.getElementById('card');
-        card.addEventListener('mousemove', (e) => {
-            const cardRect = card.getBoundingClientRect();
-            const x = e.clientX - cardRect.left;
-            const y = e.clientY - cardRect.top;
-            const centerX = card.offsetWidth / 2;
-            const centerY = card.offsetHeight / 2;
-            const rotateX = ((y - centerY) / centerY) * -8;
-            const rotateY = ((x - centerX) / centerX) * 8;
-            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-        });
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'rotateX(0) rotateY(0)';
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
