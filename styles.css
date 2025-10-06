@@ -164,17 +164,24 @@ body {
 .auth-switch a { color: var(--accent-primary); text-decoration: none; font-weight: 700; }
 .id-display-box { display: flex; justify-content: space-between; align-items: center; background: var(--bg-color); padding: var(--spacing-3); border-radius: var(--border-radius); margin: var(--spacing-4) 0; box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light); }
 #generated-id { font-family: monospace; font-size: 1.2rem; color: var(--accent-success); }
-
 /* --- 7. المكونات العامة (أزرار، حقول إدخال) --- */
 h1, h2, h3 { margin: 0 0 var(--spacing-3) 0; }
-input[type="text"], input[type="password"], select {
+input[type="text"], input[type="password"], select, textarea {
     width: 100%; padding: var(--spacing-3);
     background: var(--bg-color); border: none;
     border-radius: var(--border-radius); color: var(--text-primary);
     font-size: 1rem; transition: all 0.2s;
     box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
+    font-family: var(--font-family);
 }
-input:focus, select:focus { outline: none; box-shadow: inset 7px 7px 14px var(--shadow-dark), inset -7px -7px 14px var(--shadow-light), 0 0 0 2px var(--accent-primary); }
+input:focus, select:focus, textarea:focus { 
+    outline: none; 
+    box-shadow: inset 7px 7px 14px var(--shadow-dark), inset -7px -7px 14px var(--shadow-light), 0 0 0 2px var(--accent-primary); 
+}
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
 
 button { cursor: pointer; border: none; font-family: var(--font-family); font-weight: 700; }
 .primary-btn, .secondary-btn {
@@ -214,7 +221,20 @@ button { cursor: pointer; border: none; font-family: var(--font-family); font-we
 .status-item { display: none; align-items: center; gap: var(--spacing-3); padding: var(--spacing-3); border-radius: var(--border-radius); box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); }
 .status-item.active { display: flex; }
 
-/* === تعديل: تصميم جديد ومختلف لقسم الأخبار الهامة === */
+/* --- 9. **جديد**: لوحة تحكم المدير وقسم الأخبار --- */
+.admin-panel {
+    border: 1px solid var(--accent-primary);
+}
+.admin-panel h2 {
+    color: var(--accent-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+.admin-panel textarea {
+    margin-bottom: var(--spacing-3);
+}
+
 .announcements-section h2 {
     color: var(--accent-warning);
     border: none;
@@ -233,21 +253,44 @@ button { cursor: pointer; border: none; font-family: var(--font-family); font-we
   40% { transform: rotate(-8deg); }
   45% { transform: rotate(4deg); }
 }
+
+#announcements-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-3);
+}
+
 .announcement-item {
     padding: var(--spacing-3);
-    margin-top: var(--spacing-3);
     border-radius: var(--border-radius);
     border: none;
     background: color-mix(in srgb, var(--accent-warning) 85%, var(--bg-color));
     box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px color-mix(in srgb, var(--accent-warning) 100%, var(--shadow-light));
     color: #fff;
     font-weight: 700;
+    position: relative;
 }
-.announcement-item:first-child { margin-top: 0; }
-.announcement-item .doctor-name {
+
+/* زر الحذف الخاص بالمدير للخبر */
+.announcement-item .delete-announcement-btn {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.3);
     color: #fff;
-    font-weight: 800;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    border: none;
+    cursor: pointer;
+    display: none; /* يظهر فقط للمدير عبر JS */
+    place-items: center;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+.announcement-item .delete-announcement-btn:hover {
+    background: var(--accent-error);
 }
 
 .stats-container { display: flex; justify-content: space-around; text-align: center; }
@@ -288,7 +331,6 @@ button { cursor: pointer; border: none; font-family: var(--font-family); font-we
     box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
     transform: scale(0.98);
 }
-
 /* --- 10. صفحات الأقسام وقوائم الملفات --- */
 #section-header { text-align: center; margin-bottom: var(--spacing-4); }
 #section-header h1 { display: flex; align-items: center; justify-content: center; gap: var(--spacing-3); }
@@ -371,11 +413,12 @@ button { cursor: pointer; border: none; font-family: var(--font-family); font-we
     border-top: 2px solid var(--shadow-light);
 }
 
-.fixed-bottom-banner p {
+.fixed-bottom-banner a {
     margin: 0;
     font-weight: 700;
     color: var(--accent-warning);
     text-shadow: 1px 1px 2px var(--shadow-dark);
+    text-decoration: none;
 }
 
 .fixed-bottom-banner i {
@@ -610,4 +653,135 @@ button { cursor: pointer; border: none; font-family: var(--font-family); font-we
     .simulation-container { flex-direction: column; }
     .virtual-phone { width: 100%; max-width: 300px; height: auto; min-height: 500px; }
 }
- 
+
+/* ================================================================== */
+/* ==== 14. نافذة الحماية المنبثقة من Manus ==== */
+/* ================================================================== */
+
+.manus-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000; /* أعلى من النوافذ الأخرى */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.manus-popup-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.manus-popup-content {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 550px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-color);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+    overflow: hidden;
+    transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
+    position: relative;
+}
+
+.manus-popup-overlay.active .manus-popup-content {
+    transform: scale(1) perspective(1000px) rotateX(0) rotateY(0);
+}
+
+.manus-popup-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: radial-gradient(circle at 50% 0%, rgba(100, 120, 255, 0.2), transparent 70%);
+    pointer-events: none;
+}
+
+.manus-popup-header {
+    padding: 20px 25px;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.manus-popup-header .fa-shield-halved {
+    font-size: 2.5rem;
+    color: var(--accent-primary);
+    margin-bottom: 10px;
+    text-shadow: 0 0 15px var(--accent-primary);
+}
+
+.manus-popup-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.manus-popup-body {
+    padding: 25px;
+}
+
+.manus-popup-body p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.manus-popup-body h4 {
+    font-size: 1.1rem;
+    color: var(--accent-primary);
+    margin-top: 25px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--accent-primary);
+    padding-bottom: 5px;
+}
+
+.manus-popup-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.manus-popup-body ul li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+}
+
+.manus-popup-body ul li .fa-solid {
+    color: var(--accent-success);
+    margin-right: 10px;
+    margin-top: 4px;
+}
+
+.manus-popup-status {
+    margin-top: 25px;
+    padding: 12px;
+    text-align: center;
+    font-weight: 500;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+    transition: color 0.3s ease;
+}
+
+.manus-popup-footer {
+    padding: 15px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #888;
+    background: rgba(0, 0, 0, 0.15);
+}
