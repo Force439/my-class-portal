@@ -1,9 +1,19 @@
 /*
+  # الكود الذي أعطيتك إياه للسماح لي بالاتصال
+  Access-Control-Allow-Origin: *
+
+  # الكود الذي أعطيته أنت لحماية المتصفح
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   Permissions-Policy: geolocation=(), microphone=(), camera=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-
-/*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self';
+  Content-Security-Policy: 
+    default-src 'self'; 
+    script-src 'self' 'unsafe-inline'; 
+    style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; 
+    font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; 
+    img-src 'self' data:; 
+    connect-src 'self' https://manus-api-gateway-1-a22a1057.deta.app; 
+    frame-ancestors 'none'; 
+    form-action 'self';
