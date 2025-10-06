@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحت الصيانة - تصميم ثلاثي الأبعاد</title>
+    <title>تحت الصيانة - عداد حقيقي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* ... نفس كود CSS السابق ... */
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
         :root {
             --bg-color: #1a202c; --card-bg: #2d3748; --text-primary: #f7fafc;
@@ -22,17 +21,15 @@
             max-width: 500px; width: 100%; box-shadow: 0 25px 50px -12px var(--shadow-color);
             transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1); position: relative;
         }
-        .maintenance-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-            border-radius: var(--border-radius); transform: translateZ(-20px); pointer-events: none;
-        }
-        .maintenance-card i, .maintenance-card h1, .maintenance-card p, .countdown-container {
-            transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        }
         .maintenance-card i {
             font-size: 4rem; color: var(--accent-warning); margin-bottom: 24px;
             text-shadow: 0 0 20px var(--accent-warning); transform: translateZ(50px);
+            /* إضافة حركة دوران للتروس */
+            animation: spin 8s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: translateZ(50px) rotate(0deg); }
+            to { transform: translateZ(50px) rotate(360deg); }
         }
         .maintenance-card h1 {
             margin: 0 0 16px 0; font-size: 2rem; font-weight: 800; transform: translateZ(30px);
@@ -53,7 +50,7 @@
     <div class="maintenance-card" id="card">
         <i class="fa-solid fa-gears"></i>
         <h1>الموقع تحت الصيانة</h1>
-        <p>نعتذر عن الإزعاج، فترة الصيانة الحالية قد تستغرق ما بين 24 إلى 48 ساعة لإتمام التحديثات اللازمة لتحسين تجربتكم. نشكر لكم تفهمكم وصبركم.</p>
+        <p>نعتذر عن الإزعاج، نحن نقوم حالياً بتحديثات هامة لتحسين تجربتكم. نشكر لكم تفهمكم وصبركم.</p>
         
         <div class="countdown-container">
             <p>الوقت المتبقي المتوقع للعودة:</p>
@@ -70,36 +67,35 @@
 
     <script>
         // --- إعدادات العد التنازلي الحقيقي ---
-        const hoursForCountdown = 48;
-        let countdownEndDate;
-
-        // تحقق مما إذا كان هناك وقت نهاية محفوظ في localStorage
-        if (localStorage.getItem('maintenanceEndDate')) {
-            // إذا وجد، استخدمه
-            countdownEndDate = parseInt(localStorage.getItem('maintenanceEndDate'));
-        } else {
-            // إذا لم يوجد، قم بإنشاء واحد جديد واحفظه
-            countdownEndDate = new Date().getTime() + hoursForCountdown * 60 * 60 * 1000;
-            localStorage.setItem('maintenanceEndDate', countdownEndDate);
-        }
+        // الخطوة 1: حساب تاريخ الانتهاء مرة واحدة فقط.
+        // هذا التاريخ يمثل "الوقت الحالي + 34 ساعة".
+        const endDate = new Date();
+        endDate.setHours(endDate.getHours() + 34);
+        
+        // الخطوة 2: تحويل تاريخ الانتهاء إلى رقم (timestamp) لاستخدامه في العداد.
+        const countdownEndDate = endDate.getTime();
 
         const countdownFunction = setInterval(function() {
             const now = new Date().getTime();
             const distance = countdownEndDate - now;
 
+            // إذا انتهى العد التنازلي
             if (distance < 0) {
                 clearInterval(countdownFunction);
                 document.getElementById("countdown").innerHTML = "<h2>أوشكنا على العودة!</h2>";
-                // اختياري: حذف القيمة من localStorage بعد انتهاء العد
-                localStorage.removeItem('maintenanceEndDate');
+                // إيقاف حركة الأيقونة
+                const icon = document.querySelector('.maintenance-card i');
+                if (icon) icon.style.animationPlayState = 'paused';
                 return;
             }
 
+            // حساب الأيام، الساعات، الدقائق، الثواني
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
+            // عرض النتيجة في العناصر المخصصة
             document.getElementById("days").innerText = String(days).padStart(2, '0');
             document.getElementById("hours").innerText = String(hours).padStart(2, '0');
             document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
