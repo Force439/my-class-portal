@@ -962,13 +962,38 @@ function initializeSupportSystem() {
 }
 
 // ==================================================================
-// ==== دوال الحماية (نسخة مبسطة بدون فحص الصور بالذكاء الاصطناعي) ====
+// ==== دوال الحماية (نسخة محسنة مع خيارات للمستخدم) ====
 // ==================================================================
 
 async function loadNsfwModelAndShowPopup() {
     const popup = document.getElementById('manus-guard-popup');
     if (!popup) return;
 
+    // **جديد**: التحقق من LocalStorage قبل إظهار النافذة
+    const hidePopupPermanently = localStorage.getItem('hideManusGuardPopup');
+    if (hidePopupPermanently === 'true') {
+        console.log('[ManusGuard] تم تخطي إظهار نافذة الحماية بناءً على طلب المستخدم.');
+        return; // لا تقم بإظهار النافذة
+    }
+
+    // --- إعداد أزرار التحكم ---
+    const skipBtn = document.getElementById('skip-popup-btn');
+    const dontShowBtn = document.getElementById('dont-show-popup-btn');
+
+    const closePopup = () => {
+        popup.classList.remove('active');
+    };
+
+    const dontShowAgain = () => {
+        // **جديد**: حفظ اختيار المستخدم في LocalStorage
+        localStorage.setItem('hideManusGuardPopup', 'true');
+        closePopup();
+    };
+
+    skipBtn.addEventListener('click', closePopup);
+    dontShowBtn.addEventListener('click', dontShowAgain);
+
+    // --- إظهار النافذة وتحديث محتواها ---
     popup.classList.add('active');
     
     const statusDiv = document.getElementById('manus-guard-status');
@@ -985,8 +1010,4 @@ async function loadNsfwModelAndShowPopup() {
             <li><i class="fa-solid fa-info-circle"></i> <strong>ملاحظة:</strong> تم تعطيل فحص الصور بالذكاء الاصطناعي مؤقتاً بسبب قيود الخادم المحلي.</li>
         `;
     }
-
-    setTimeout(() => {
-        popup.classList.remove('active');
-    }, 15000);
 }
