@@ -6,39 +6,51 @@
     <title>محاضرات C++</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="header-marquee"><p>This page was developed for IT students by Eng.Hameed Mohammed AlSamei.</p></div>
-    <canvas id="matrix-canvas"></canvas>
-    <button id="theme-toggle-btn" title="تبديل الوضع"><i class="fa-solid fa-sun"></i></button>
 
-    <div class="card" id="content-section" style="display: block;">
-        <a href="index.html" class="back-to-home-btn"><i class="fa-solid fa-arrow-right"></i> العودة للرئيسية</a>
-        <h1><i class="fa-solid fa-code subject-icon-large"></i> أساسيات لغة C++</h1>
-        <p>جميع المحاضرات والملفات الخاصة بمادة C++.</p>
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="ابحث في محاضرات C++...">
-            <i class="fa-solid fa-search search-icon"></i>
-        </div>
-        <ul class="file-list">
-            <!-- === المحاضرة الجديدة بالهيكل الصحيح === -->
-            <li data-date="2025-09-20">
-                <div class="file-info">
-                    <span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> اساسيات في لغة C++ (المعاملات).pdf</span>
-                    <span class="file-meta">أُضيفت بتاريخ: 2025/9/20</span>
-                </div>
-                <a href="https://drive.google.com/file/d/1EXjRbu89Zagu6-xSJm6iPXErxSSiKEYF/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a>
-            </li>
+    <div id="page-container" class="main-container">
+        <div class="card" id="content-section">
             
-            <!-- بقية المحاضرات كما هي -->
-            <li data-date="2025-08-05"><div class="file-info"><span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> المحاضرة الاولى اساسيات لغةC++.pdf</span></div><a href="https://drive.google.com/file/d/1R4FCjCnv86f6xMU41vxS44NqdtN0By2b/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a></li>
-            <li data-date="2025-08-04"><div class="file-info"><span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> المحاضرة الثانية برمجه اساسيات لغة C++.pdf</span></div><a href="https://drive.google.com/file/d/1Qv-fpUiCKcBEt19yn3M3_oFmsWQNVMaT/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a></li>
-            <li data-date="2025-09-13"><div class="file-info"><span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> المحاضرة الثالثه اساسيات لغةC++.pdf</span></div><a href="https://drive.google.com/file/d/1RmreFCLe6AFGB-A6c-XkCqr8tuLsNOFK/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a></li>
-            <li data-date="2025-09-13"><div class="file-info"><span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> المحاضرة الرابعه الإدخال والإخراج والثوابت لغةC++.pdf</span></div><a href="https://drive.google.com/file/d/1RsGBUyBGG3Px1a65to7XNQRhuQgyvrS7/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a></li>
-            <li data-date="2025-09-14"><div class="file-info"><span class="file-name"><i class="fa-solid fa-file-pdf file-icon pdf"></i> الخوارزميات والمخططات الإنسيابيه.pdf</span></div><a href="https://drive.google.com/file/d/1RwjtfUWF4jNXiOYfBnfeovCheh_05e4T/view?usp=drivesdk" class="download-btn" target="_blank"><i class="fa-solid fa-download"></i> تحميل</a></li>
-        </ul>
+            <a href="index.html" class="back-to-home-btn">
+                <i class="fa-solid fa-arrow-right"></i> العودة للرئيسية
+            </a>
+            
+            <div id="section-header">
+                <h1><i class="fa-solid fa-code subject-icon-large"></i> أساسيات لغة C++</h1>
+                <p>جميع المحاضرات والملفات الخاصة بمادة C++.</p>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="ابحث في محاضرات C++...">
+                <i class="fa-solid fa-search search-icon"></i>
+            </div>
+            
+            <!-- قائمة الملفات ستُملأ هنا ديناميكياً بواسطة script.js -->
+            <ul class="file-list">
+                <!-- مثال على شكل العنصر الذي سيتم إنشاؤه (لا تضعه هنا) -->
+                <!-- 
+                <li>
+                    <div class="file-info">
+                        <div class="file-icon-wrapper" style="background-color: #ef444433; color: #ef4444;">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <div class="file-details">
+                            <span class="file-name">اسم الملف.pdf</span>
+                            <span class="file-meta">وصف الملف</span>
+                        </div>
+                    </div>
+                    <div class="file-buttons">
+                        <a href="#" class="primary-btn download-btn">
+                            <i class="fa-solid fa-download"></i> تحميل
+                        </a>
+                    </div>
+                </li> 
+                -->
+            </ul>
+        </div>
     </div>
+
     <button id="back-to-top-btn" title="العودة إلى الأعلى"><i class="fa-solid fa-arrow-up"></i></button>
     <script src="script.js"></script>
 </body>
