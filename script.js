@@ -1,16 +1,19 @@
 // ==================================================================
-// ==== المحرك النهائي للبوابة - الإصدار المبسط (بدون فيديو) ====
+// ==== المحرك النهائي للبوابة - إصدار "ManusGuard" مع لوحة تحكم ====
+// ==================================================================
+//            هذا الكود هو تجسيد لذكاء وقرارات "مانوس"
+//              يعمل بشكل مستقل، قوي، وفوري.
 // ==================================================================
 
-// --- 1. الإعدادات العامة ونقطة الاتصال ---
+// --- 1. الإعدادات العامة ---
 const ADMIN_ID = "user-1759622807227";
-const MANUS_API_ENDPOINT = "https://manus-api-gateway-1-a22a1057.deta.app/scan";
 let db;
+let nsfwModel = null;
 
 // --- 2. دوال التهيئة وقواعد البيانات المحلية ---
 function initDB() {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open("DigitalLecturesDB", 1);
+        const request = indexedDB.open("DigitalLecturesDB", 2);
         request.onupgradeneeded = event => {
             const dbInstance = event.target.result;
             if (!dbInstance.objectStoreNames.contains('files')) {
@@ -19,6 +22,7 @@ function initDB() {
         };
         request.onsuccess = event => {
             db = event.target.result;
+            console.log("✅ [DB] Local file database initialized.");
             resolve(db);
         };
         request.onerror = event => {
@@ -49,41 +53,42 @@ function getIconForSection(sectionName) {
 
 // --- 3. نظام التشغيل الأولي والتسلسل المنطقي ---
 document.addEventListener('DOMContentLoaded', async () => {
-    // تهيئة الأنظمة الأساسية أولاً
     applySavedTheme();
-    try { await initDB(); } catch (error) { console.error("Failed to init DB:", error); }
     initializeSupportSystem();
 
-    // هذا الكود خاص بالصفحة الرئيسية فقط (index.html)
+    try {
+        await initDB();
+    } catch (error) {
+        console.error("Failed to init DB:", error);
+    }
+
     if (document.getElementById('main-subjects-grid')) {
         const loader = document.getElementById('loader');
         const authSection = document.getElementById('auth-section');
         const contentSection = document.getElementById('content-section');
         const session = JSON.parse(sessionStorage.getItem('userSession'));
 
-        // إخفاء شاشة التحميل بعد فترة قصيرة
         if (loader) {
             setTimeout(() => {
                 loader.classList.add('hidden');
             }, 1500);
         }
 
-        // التحقق من وجود جلسة نشطة
         if (session && session.isAuthenticated && new Date().getTime() < session.expiry) {
             authSection.style.display = 'none';
             contentSection.style.display = 'block';
-            initializePageFunctions();
+            await initializePageFunctions();
         } else {
             authSection.style.display = 'block';
             contentSection.style.display = 'none';
             setupAuthListeners();
         }
-    } else { // هذا الكود للصفحات الفرعية
-        setupPageContent();
+    } else {
+        // للصفحات الفرعية
+        await setupPageContent();
         setupCommonListeners();
     }
 });
-
 
 // --- 4. نظام المصادقة والجولات التعليمية ---
 function setupAuthListeners() {
@@ -176,26 +181,25 @@ function startOnboardingTour(userId, onFinishCallback) {
     modal.classList.add('active');
     showStep(currentStep);
 }
-// ==================================================================
-// =================== بداية الجزء الثاني ===========================
-// ==================================================================
-
 // --- 5. الوظائف العامة بعد تسجيل الدخول ---
-function initializePageFunctions() {
+async function initializePageFunctions() {
+    // **جديد**: تهيئة نظام الأخبار
+    initializeAdminPanel();
+    loadAndDisplayAnnouncements();
+
     setupPageContent();
     if (document.getElementById('upload-section')) {
+        await loadNsfwModelAndShowPopup();
         setupUploadListeners();
         showProgrammingTip();
     }
     runSmartCounters();
     setupCommonListeners();
 
-    // *** المنطق الجديد: التحقق من الجولة التعليمية بعد تسجيل الدخول ***
     const session = JSON.parse(sessionStorage.getItem('userSession'));
     if (session) {
         const hasCompletedTour = localStorage.getItem(`tourCompleted_${session.userId}`);
         if (hasCompletedTour !== 'true') {
-            // ابدأ الجولة التعليمية، وعند الانتهاء، اعرض نافذة الدعم
             startOnboardingTour(session.userId, () => {
                 const supportModal = document.getElementById('onecash-support-modal');
                 if (supportModal && window.updateSupportState) {
@@ -206,6 +210,102 @@ function initializePageFunctions() {
         }
     }
 }
+
+// --- 5.1. **جديد**: دوال نظام إدارة الأخبار ---
+
+// دالة لتهيئة لوحة تحكم المدير
+function initializeAdminPanel() {
+    const session = JSON.parse(sessionStorage.getItem('userSession'));
+    const adminPanel = document.getElementById('admin-panel-card');
+    
+    // تحقق إذا كان المستخدم هو المدير
+    if (session && session.userId === ADMIN_ID && adminPanel) {
+        adminPanel.style.display = 'block'; // إظهار لوحة التحكم
+
+        const postBtn = document.getElementById('post-announcement-btn');
+        const announcementInput = document.getElementById('announcement-input');
+
+        postBtn.addEventListener('click', () => {
+            const text = announcementInput.value.trim();
+            if (text) {
+                const newAnnouncement = {
+                    id: `anno-${Date.now()}`,
+                    text: text,
+                    date: new Date().toISOString()
+                };
+
+                // حفظ الخبر الجديد وإعادة عرضه
+                const announcements = JSON.parse(localStorage.getItem('announcements')) || [];
+                announcements.unshift(newAnnouncement); // إضافة الخبر الجديد في البداية
+                saveAnnouncements(announcements);
+                displayAnnouncements(announcements);
+
+                announcementInput.value = ''; // تفريغ حقل الإدخال
+                alert('تم نشر الخبر بنجاح!');
+            } else {
+                alert('الرجاء كتابة نص الخبر قبل النشر.');
+            }
+        });
+    }
+}
+
+// دالة لتحميل وعرض الأخبار من LocalStorage
+function loadAndDisplayAnnouncements() {
+    const announcements = JSON.parse(localStorage.getItem('announcements')) || [];
+    displayAnnouncements(announcements);
+}
+
+// دالة لحفظ مصفوفة الأخبار في LocalStorage
+function saveAnnouncements(announcements) {
+    localStorage.setItem('announcements', JSON.stringify(announcements));
+}
+
+// دالة لعرض الأخبار في الصفحة
+function displayAnnouncements(announcements) {
+    const listContainer = document.getElementById('announcements-list');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = ''; // تفريغ القائمة قبل إعادة العرض
+
+    if (announcements.length === 0) {
+        listContainer.innerHTML = '<p>لا توجد أخبار هامة حالياً.</p>';
+        return;
+    }
+
+    const session = JSON.parse(sessionStorage.getItem('userSession'));
+    const isAdmin = session && session.userId === ADMIN_ID;
+
+    announcements.forEach(announcement => {
+        const item = document.createElement('div');
+        item.className = 'announcement-item';
+        item.dataset.id = announcement.id;
+
+        // زر الحذف الذي يظهر للمدير فقط
+        const deleteBtnHTML = isAdmin ? `<button class="delete-announcement-btn" title="حذف الخبر"><i class="fa-solid fa-trash"></i></button>` : '';
+        
+        item.innerHTML = `<p>${announcement.text}</p>${deleteBtnHTML}`;
+        
+        listContainer.appendChild(item);
+
+        // إضافة وظيفة لزر الحذف إذا كان موجودًا
+        if (isAdmin) {
+            const deleteBtn = item.querySelector('.delete-announcement-btn');
+            if(deleteBtn) {
+                deleteBtn.style.display = 'grid'; // إظهار الزر
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // منع أي أحداث أخرى
+                    if (confirm('هل أنت متأكد من حذف هذا الخبر؟')) {
+                        // حذف الخبر من المصفوفة وإعادة الحفظ والعرض
+                        const updatedAnnouncements = announcements.filter(a => a.id !== announcement.id);
+                        saveAnnouncements(updatedAnnouncements);
+                        displayAnnouncements(updatedAnnouncements);
+                    }
+                });
+            }
+        }
+    });
+}
+
 
 function setupCommonListeners() {
     const searchInput = document.getElementById('search-input');
@@ -233,7 +333,6 @@ function setupCommonListeners() {
         helpBtn.addEventListener('click', () => {
             const session = JSON.parse(sessionStorage.getItem('userSession'));
             if (session) {
-                // عند الضغط على زر المساعدة، ابدأ الجولة فقط
                 startOnboardingTour(session.userId, () => console.log("Help tour finished."));
             }
         });
@@ -270,7 +369,7 @@ function applySavedTheme() {
     applyTheme(savedTheme);
 }
 
-// --- 6. منطق الرفع والفحص (النسخة المتصلة بـ "مانوس") ---
+// --- 6. منطق الرفع واستدعاء "ManusGuard" ---
 function setupUploadListeners() {
     let selectedFile = null;
     let lastAddedFileId = null;
@@ -290,7 +389,19 @@ function setupUploadListeners() {
     fileInput.addEventListener('change', () => { if (fileInput.files.length > 0) { selectedFile = fileInput.files[0]; document.querySelector('#selected-file-info span').textContent = selectedFile.name; goToStep(2); } });
 
     document.getElementById('back-to-step-1').addEventListener('click', () => goToStep(1));
-    document.getElementById('next-to-step-3').addEventListener('click', () => { if (!document.getElementById('file-display-name-input').value.trim() || !document.getElementById('user-name-input').value.trim()) { alert('الرجاء إدخال اسم وصفي للملف واسمك.'); return; } goToStep(3); });
+    
+    document.getElementById('next-to-step-3').addEventListener('click', () => { 
+        const userNameInput = document.getElementById('user-name-input');
+        if (userNameInput.value.trim().toLowerCase() === 'hameed al_sameai') {
+            userNameInput.value = 'Hameed Alsamei';
+        }
+        if (!document.getElementById('file-display-name-input').value.trim() || !userNameInput.value.trim()) { 
+            alert('الرجاء إدخال اسم وصفي للملف واسمك.'); 
+            return; 
+        } 
+        goToStep(3); 
+    });
+
     document.getElementById('back-to-step-2').addEventListener('click', () => goToStep(2));
 
     const modal = document.getElementById('add-section-modal');
@@ -310,12 +421,15 @@ function setupUploadListeners() {
         uploadStatus.style.display = 'block';
         Object.values(statusItems).forEach(s => s.classList.remove('active'));
         statusItems.scanning.classList.add('active');
-        document.getElementById('scan-progress').textContent = '...جاري الاتصال بـ "مانوس"';
-
+        
+        const scanProgress = document.getElementById('scan-progress');
+        
         try {
-            await scanFileWithManus(selectedFile);
+            await ManusGuard.scan(selectedFile, (progress, message) => {
+                scanProgress.textContent = `${message} (${Math.round(progress)}%)`;
+            });
             
-            document.getElementById('scan-progress').textContent = 'آمن! جاري الحفظ...';
+            scanProgress.textContent = 'آمن! جاري الحفظ...';
             const fileId = await addFileToStorage(selectedFile, sectionSelector.value, document.getElementById('user-name-input').value.trim(), document.getElementById('file-display-name-input').value.trim());
             lastAddedFileId = fileId;
 
@@ -352,49 +466,204 @@ function setupUploadListeners() {
     });
 }
 
-async function scanFileWithManus(file) {
-    if (!file) throw new Error("لم يتم تحديد أي ملف.");
-    const formData = new FormData();
-    formData.append("file", file);
-    try {
-        const response = await fetch(MANUS_API_ENDPOINT, { method: 'POST', body: formData });
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => null);
-            throw new Error(errorData?.detail || `فشل الاتصال بالخادم. الحالة: ${response.status}`);
-        }
-        const result = await response.json();
-        if (result.decision !== 'accepted') {
-            throw new Error(result.reason || 'تم رفض الملف من قبل "مانوس".');
-        }
-        return true;
-    } catch (error) {
-        console.error('[Manus Connection Error]', error);
-        throw new Error(error.message.includes('Failed to fetch') ? 'فشل الاتصال بـ "مانوس". يرجى التحقق من اتصالك بالإنترنت.' : error.message);
-    }
-}
+
 // ==================================================================
-// =================== بداية الجزء الثالث ===========================
+// ==================================================================
+// ==                                                              ==
+// ==            محرك الفحص الأمني "ManusGuard" v3.0               ==
+// ==                  (النسخة النهائية الآمنة)                    ==
+// ==                                                              ==
+// ==================================================================
 // ==================================================================
 
+const ManusGuard = {
+    
+    config: {
+        maxFileSize: 50 * 1024 * 1024,
+        blacklistedExtensions: ['exe', 'msi', 'bat', 'cmd', 'sh', 'vbs', 'js', 'jar', 'ps1', 'scr', 'com', 'pif', 'gadget', 'hta', 'cpl', 'msc', 'ws', 'wsf', 'reg'],
+        suspiciousKeywords: ['hack', 'crack', 'patch', 'keygen', 'activator', 'free', 'exploit', 'porn', 'sex', 'xxx', 'naked', 'adult', 'فضيحة', 'إباحي'],
+        fileSignatures: { 'ffd8ffe0': 'jpg', 'ffd8ffe1': 'jpg', 'ffd8ffe2': 'jpg', 'ffd8ffe3': 'jpg', 'ffd8ffe8': 'jpg', '89504e47': 'png', '47494638': 'gif', '25504446': 'pdf', '504b0304': 'zip', 'd0cf11e0': 'doc/xls/ppt', '3c3f786d': 'xml' }
+    },
+
+    scan: async function(file, onProgress) {
+        if (!file) {
+            throw new Error("لم يتم تحديد أي ملف للفحص.");
+        }
+
+        const checks = [
+            { name: "فحص البيانات الأولية", func: this.checkMetadata },
+            { name: "فحص البصمة الرقمية", func: this.checkFileSignature },
+            { name: "فحص المحتوى العميق", func: this.checkContent },
+            { name: "فحص محتوى الصورة (AI)", func: this.checkImageContent }
+        ];
+
+        for (let i = 0; i < checks.length; i++) {
+            const check = checks[i];
+            const progress = ((i + 1) / checks.length) * 100;
+            onProgress(progress, check.name);
+            await check.func.call(this, file);
+        }
+
+        return true;
+    },
+
+    checkMetadata: function(file) {
+        return new Promise((resolve, reject) => {
+            if (file.size > this.config.maxFileSize) return reject(new Error(`حجم الملف يتجاوز الحد المسموح به (${this.config.maxFileSize / 1024 / 1024}MB).`));
+            if (file.size === 0) return reject(new Error("لا يمكن رفع ملف فارغ."));
+            const extension = file.name.split('.').pop().toLowerCase();
+            if (this.config.blacklistedExtensions.includes(extension)) return reject(new Error(`امتداد الملف (${extension}) غير مسموح به لأسباب أمنية.`));
+            const fileNameLower = file.name.toLowerCase();
+            for (const keyword of this.config.suspiciousKeywords) {
+                if (fileNameLower.includes(keyword)) return reject(new Error("اسم الملف يحتوي على كلمات غير مسموح بها."));
+            }
+            resolve(true);
+        });
+    },
+
+    checkFileSignature: function(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = (e) => {
+                if (e.target.readyState === FileReader.DONE) {
+                    const arr = (new Uint8Array(e.target.result)).subarray(0, 4);
+                    let header = "";
+                    for (let i = 0; i < arr.length; i++) header += arr[i].toString(16).padStart(2, '0');
+                    let foundType = null;
+                    for (const signature in this.config.fileSignatures) {
+                        if (header.startsWith(signature)) {
+                            foundType = this.config.fileSignatures[signature];
+                            break;
+                        }
+                    }
+                    if (foundType) {
+                        resolve(true);
+                    } else {
+                        const extension = file.name.split('.').pop().toLowerCase();
+                        if (['txt', 'md', 'csv'].includes(extension)) {
+                            resolve(true);
+                        } else {
+                            reject(new Error("نوع الملف غير معروف أو قد يكون مزيفًا. تم الرفض كإجراء أمني."));
+                        }
+                    }
+                }
+            };
+            reader.onerror = () => reject(new Error("حدث خطأ أثناء قراءة بصمة الملف."));
+            const blob = file.slice(0, 4);
+            reader.readAsArrayBuffer(blob);
+        });
+    },
+
+    checkContent: function(file) {
+        return new Promise((resolve, reject) => {
+            const extension = file.name.split('.').pop().toLowerCase();
+            const readableExtensions = ['txt', 'html', 'css', 'xml', 'svg', 'md', 'csv', 'json'];
+            if (!readableExtensions.includes(extension)) {
+                resolve(true);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = (e) => {
+                if (e.target.readyState === FileReader.DONE) {
+                    const content = e.target.result;
+                    const dangerousPatterns = [/<script\b[^>]*>/i, /<\/script>/i, /\bon\w+\s*=\s*['"]?[^'"]*['"]?/i, /<iframe\b[^>]*>/i, /javascript:/i, /data:/i, /eval\(/i, /document\.cookie/i, /localStorage/i, /sessionStorage/i];
+                    for (const pattern of dangerousPatterns) {
+                        if (pattern.test(content)) {
+                            return reject(new Error("تم اكتشاف محتوى قد يكون ضارًا داخل الملف."));
+                        }
+                    }
+                    resolve(true);
+                }
+            };
+            reader.onerror = () => reject(new Error("حدث خطأ أثناء قراءة محتوى الملف."));
+            reader.readAsText(file);
+        });
+    },
+    
+    checkImageContent: function(file) {
+        return new Promise((resolve, reject) => {
+            if (!file.type.startsWith('image/')) {
+                return resolve(true);
+            }
+            if (!nsfwModel) {
+                console.error("[ManusGuard] نموذج فحص الصور غير متوفر. تم رفض الصورة كإجراء احترازي.");
+                return reject(new Error("فشل الاتصال بخادم فحص الصور. لا يمكن رفع الصور حاليًا."));
+            }
+            const img = document.createElement('img');
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                img.src = e.target.result;
+                img.onload = async () => {
+                    try {
+                        const predictions = await nsfwModel.classify(img);
+                        const unsafeClasses = ['Porn', 'Hentai', 'Sexy'];
+                        const confidenceThreshold = 0.70;
+                        for (const prediction of predictions) {
+                            if (unsafeClasses.includes(prediction.className) && prediction.probability > confidenceThreshold) {
+                                return reject(new Error(`تم اكتشاف محتوى غير لائق (تصنيف: ${prediction.className}).`));
+                            }
+                        }
+                        resolve(true);
+                    } catch (error) {
+                        reject(new Error("حدث خطأ أثناء تحليل الصورة."));
+                    }
+                };
+                img.onerror = () => reject(new Error("لا يمكن قراءة ملف الصورة."));
+            };
+            reader.onerror = () => reject(new Error("خطأ في قراءة ملف الصورة."));
+            reader.readAsDataURL(file);
+        });
+    }
+};
 // --- 7. دوال التخزين والعرض ---
 function addFileToStorage(file, sectionId, userName, fileDisplayName) {
     return new Promise((resolve, reject) => {
-        if (!db) return reject("قاعدة البيانات غير جاهزة.");
+        if (!db) {
+            console.error("[Storage] قاعدة البيانات غير جاهزة. لا يمكن الحفظ.");
+            return reject("فشل الاتصال بقاعدة البيانات. لا يمكن حفظ الملف.");
+        }
+
         const session = JSON.parse(sessionStorage.getItem('userSession'));
+        if (!session) {
+            return reject("انتهت جلسة المستخدم. يرجى تسجيل الدخول مرة أخرى.");
+        }
+
         const fileId = `file-${Date.now()}`;
         const metadata = { id: fileId, section: sectionId, fileName: fileDisplayName, originalFileName: file.name, userName, userId: session.userId, date: new Date().toISOString().split('T')[0] };
         const fileRecord = { id: fileId, blob: file };
-        const transaction = db.transaction(['files'], 'readwrite');
-        const store = transaction.objectStore('files');
-        const request = store.add(fileRecord);
-        request.oncomplete = () => {
-            const allMetadata = JSON.parse(localStorage.getItem('userUploadedFiles')) || [];
-            allMetadata.push(metadata);
-            localStorage.setItem('userUploadedFiles', JSON.stringify(allMetadata));
-            runSmartCounters();
-            resolve(fileId);
-        };
-        request.onerror = (event) => reject("فشل في حفظ الملف.");
+
+        try {
+            const transaction = db.transaction(['files'], 'readwrite');
+            const store = transaction.objectStore('files');
+            
+            const request = store.add(fileRecord);
+            request.onsuccess = () => {
+                console.log(`[Storage] تم حفظ الملف بنجاح بالمعرف: ${fileId}`);
+                const allMetadata = JSON.parse(localStorage.getItem('userUploadedFiles')) || [];
+                allMetadata.push(metadata);
+                localStorage.setItem('userUploadedFiles', JSON.stringify(allMetadata));
+                runSmartCounters();
+                resolve(fileId);
+            };
+
+            request.onerror = (event) => {
+                console.error("[Storage] فشل طلب الحفظ:", event.target.error);
+                reject("فشل في حفظ الملف في قاعدة البيانات. قد يكون حجمه كبيرًا جدًا.");
+            };
+
+            transaction.oncomplete = () => {
+                console.log("[Storage] اكتملت عملية الحفظ بنجاح.");
+            };
+
+            transaction.onerror = (event) => {
+                console.error("[Storage] فشلت عملية الحفظ:", event.target.error);
+                reject("فشلت عملية الحفظ. قد تكون مساحة التخزين ممتلئة.");
+            };
+
+        } catch (error) {
+            console.error("[Storage] خطأ فادح أثناء بدء عملية الحفظ:", error);
+            reject("حدث خطأ غير متوقع أثناء محاولة الوصول إلى قاعدة البيانات.");
+        }
     });
 }
 
@@ -416,7 +685,10 @@ function deleteFileFromStorage(fileId) {
     };
 }
 
-function setupPageContent() {
+async function setupPageContent() {
+    // **جديد**: تحميل الأخبار في الصفحات الفرعية أيضًا
+    loadAndDisplayAnnouncements();
+
     if (document.getElementById('main-subjects-grid')) { 
         displayUserAddedSections(); 
         populateSections(); 
@@ -433,10 +705,10 @@ function setupPageContent() {
             const currentSection = allSections.find(sec => sec.id === sectionIdFromUrl);
             if (currentSection) {
                 document.title = currentSection.name;
-                const header = document.querySelector('#content-section h1');
-                const p = document.querySelector('#content-section p');
-                if(header) header.innerHTML = `<i class="fa-solid ${getIconForSection(currentSection.name)} subject-icon-large"></i> ${currentSection.name}`;
-                if(p) p.textContent = `جميع الملفات والمساهمات الخاصة بقسم ${currentSection.name}.`;
+                const header = document.querySelector('#section-header');
+                if(header) {
+                    header.innerHTML = `<h1><i class="fa-solid ${getIconForSection(currentSection.name)} subject-icon-large"></i> ${currentSection.name}</h1><p>جميع الملفات والمساهمات الخاصة بقسم ${currentSection.name}.</p>`;
+                }
                 displayFilesForSection(currentSection.id);
             }
         }
@@ -538,18 +810,27 @@ function displayFilesForSection(sectionId) {
     const currentUserId = session ? session.userId : null;
     const isAdmin = currentUserId === ADMIN_ID;
     sectionFiles.forEach(fileMeta => {
+        let displayName = fileMeta.userName;
+        if (displayName.trim().toLowerCase() === 'hameed al_sameai') {
+            displayName = 'Hameed Alsamei';
+        }
         const { icon, color } = getIconForFile(fileMeta.originalFileName);
         const li = document.createElement('li');
         li.className = 'user-added';
         li.dataset.itemId = fileMeta.id;
         let adminButtonsHTML = (isAdmin || (currentUserId && fileMeta.userId === currentUserId)) ? `<button class="secondary-btn delete-btn" title="حذف"><i class="fa-solid fa-trash"></i></button>` : '';
-        li.innerHTML = `<div class="file-info"><div class="file-icon-wrapper" style="background-color: ${color}33; color: ${color};"><i class="fa-solid ${icon}"></i></div><div class="file-details"><span class="file-name">${fileMeta.fileName}</span><span class="file-meta">أُضيف بواسطة: ${fileMeta.userName} بتاريخ: ${fileMeta.date.replace(/-/g, '/')}</span></div></div><div class="file-buttons">${adminButtonsHTML}<button class="primary-btn download-btn"><i class="fa-solid fa-download"></i> تحميل</button></div>`;
+        li.innerHTML = `<div class="file-info"><div class="file-icon-wrapper" style="background-color: ${color}33; color: ${color};"><i class="fa-solid ${icon}"></i></div><div class="file-details"><span class="file-name">${fileMeta.fileName}</span><span class="file-meta">أُضيف بواسطة: ${displayName} بتاريخ: ${fileMeta.date.replace(/-/g, '/')}</span></div></div><div class="file-buttons">${adminButtonsHTML}<button class="primary-btn download-btn"><i class="fa-solid fa-download"></i> تحميل</button></div>`;
         li.querySelector('.download-btn').onclick = () => downloadFile(fileMeta.id, fileMeta.originalFileName);
-        if (li.querySelector('.delete-btn')) { li.querySelector('.delete-btn').onclick = () => { if (confirm(`هل أنت متأكد من حذف ملف "${fileMeta.fileName}"؟`)) { deleteFileFromStorage(fileMeta.id); } }; }
+        if (li.querySelector('.delete-btn')) { 
+            li.querySelector('.delete-btn').onclick = () => { 
+                if (confirm(`هل أنت متأكد من حذف ملف "${fileMeta.fileName}"؟`)) { 
+                    deleteFileFromStorage(fileMeta.id); 
+                } 
+            }; 
+        }
         fileList.appendChild(li);
     });
 }
-
 function downloadFile(fileId, originalFileName) {
     if (!db) { alert("قاعدة البيانات غير جاهزة، يرجى المحاولة مرة أخرى."); return; }
     const transaction = db.transaction(['files'], 'readonly');
@@ -678,4 +959,34 @@ function initializeSupportSystem() {
             alert('فشل نسخ الرقم');
         });
     });
+}
+
+// ==================================================================
+// ==== دوال الحماية (نسخة مبسطة بدون فحص الصور بالذكاء الاصطناعي) ====
+// ==================================================================
+
+async function loadNsfwModelAndShowPopup() {
+    const popup = document.getElementById('manus-guard-popup');
+    if (!popup) return;
+
+    popup.classList.add('active');
+    
+    const statusDiv = document.getElementById('manus-guard-status');
+    if(statusDiv) {
+        statusDiv.textContent = 'تم تفعيل نظام الحماية الأساسي.';
+        statusDiv.style.color = '#28a745';
+    }
+
+    const policyList = popup.querySelector('.manus-popup-body ul');
+    if (policyList) {
+        policyList.innerHTML = `
+            <li><i class="fa-solid fa-shield-alt"></i> <strong>فحص أمني شامل:</strong> يتم فحص جميع الملفات للتأكد من خلوها من التهديدات الأمنية الأساسية.</li>
+            <li><i class="fa-solid fa-lock"></i> <strong>الفحص يتم محلياً:</strong> يتم تحليل الملفات مباشرة في متصفحك ولا يتم رفعها لأي خادم أثناء الفحص.</li>
+            <li><i class="fa-solid fa-info-circle"></i> <strong>ملاحظة:</strong> تم تعطيل فحص الصور بالذكاء الاصطناعي مؤقتاً بسبب قيود الخادم المحلي.</li>
+        `;
+    }
+
+    setTimeout(() => {
+        popup.classList.remove('active');
+    }, 3000);
 }
