@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- العنوان سيتغير ديناميكياً بواسطة الجافاسكربت -->
+    <title>قسم مخصص</title>
+
+    <!-- نفس روابط الخطوط والأيقونات والتنسيقات -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- زر العودة للأعلى (موجود في كل الصفحات) -->
+    <button id="back-to-top-btn" title="العودة إلى الأعلى"><i class="fa-solid fa-arrow-up"></i></button>
+
+    <!-- بطاقة المحتوى الرئيسية -->
+    <div class="card" id="content-section" style="display: block;">
+        
+        <!-- زر العودة للصفحة الرئيسية -->
+        <a href="index.html" class="back-to-home-btn">
+            <i class="fa-solid fa-arrow-right"></i> العودة للرئيسية
+        </a>
+        
+        <!-- ================================================== -->
+        <!-- ==== تم الإصلاح هنا: العنوان والأيقونة أصبحا ديناميكيين بالكامل ==== -->
+        <!-- ================================================== -->
+        <div id="section-header">
+            <!-- سيتم ملء هذا القسم بالكامل عبر الجافاسكربت -->
+        </div>
+        
+        <!-- مربع البحث -->
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="ابحث في ملفات القسم...">
+            <i class="fa-solid fa-search search-icon"></i>
+        </div>
+        
+        <!-- قائمة الملفات (ستُملأ ديناميكياً) -->
+        <ul class="file-list">
+            <!-- الملفات الأصلية والملفات المضافة من قبل المستخدمين ستظهر هنا -->
+        </ul>
+    </div>
+
+    <!-- ملف الجافاسكربت (الأهم) -->
+    <script src="script.js"></script>
+</body>
+</html>
