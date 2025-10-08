@@ -1,5 +1,5 @@
 // ==================================================================
-// ==== المحرك النهائي للبوابة - إصدار "ManusGuard" مع لوحة تحكم ====
+// ==== المحرك النهائي للبوابة - إصدار "ManusGuard" مع نظام أخبار مركزي ====
 // ==================================================================
 //            هذا الكود هو تجسيد لذكاء وقرارات "مانوس"
 //              يعمل بشكل مستقل، قوي، وفوري.
@@ -84,7 +84,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             setupAuthListeners();
         }
     } else {
-        // للصفحات الفرعية
         await setupPageContent();
         setupCommonListeners();
     }
@@ -181,11 +180,11 @@ function startOnboardingTour(userId, onFinishCallback) {
     modal.classList.add('active');
     showStep(currentStep);
 }
+
 // --- 5. الوظائف العامة بعد تسجيل الدخول ---
 async function initializePageFunctions() {
-    // **جديد**: تهيئة نظام الأخبار
     initializeAdminPanel();
-    loadAndDisplayAnnouncements();
+    renderAnnouncements(); // **تعديل**: أصبحت دالة غير متزامنة
 
     setupPageContent();
     if (document.getElementById('upload-section')) {
@@ -211,108 +210,180 @@ async function initializePageFunctions() {
     }
 }
 
-// --- 5.1. **جديد**: دوال نظام إدارة الأخبار ---
+// --- 5.1. **جديد**: دوال نظام إدارة الأخبار المركزي ---
 
-// دالة لتهيئة لوحة تحكم المدير
 function initializeAdminPanel() {
     const session = JSON.parse(sessionStorage.getItem('userSession'));
     const adminPanel = document.getElementById('admin-panel-card');
     
-    // تحقق إذا كان المستخدم هو المدير
     if (session && session.userId === ADMIN_ID && adminPanel) {
-        adminPanel.style.display = 'block'; // إظهار لوحة التحكم
-
+        adminPanel.style.display = 'block';
         const postBtn = document.getElementById('post-announcement-btn');
-        const announcementInput = document.getElementById('announcement-input');
-
-        postBtn.addEventListener('click', () => {
-            const text = announcementInput.value.trim();
-            if (text) {
-                const newAnnouncement = {
-                    id: `anno-${Date.now()}`,
-                    text: text,
-                    date: new Date().toISOString()
-                };
-
-                // حفظ الخبر الجديد وإعادة عرضه
-                const announcements = JSON.parse(localStorage.getItem('announcements')) || [];
-                announcements.unshift(newAnnouncement); // إضافة الخبر الجديد في البداية
-                saveAnnouncements(announcements);
-                displayAnnouncements(announcements);
-
-                announcementInput.value = ''; // تفريغ حقل الإدخال
-                alert('تم نشر الخبر بنجاح!');
-            } else {
-                alert('الرجاء كتابة نص الخبر قبل النشر.');
-            }
-        });
+        postBtn.addEventListener('click', handlePostAnnouncement);
     }
 }
 
-// دالة لتحميل وعرض الأخبار من LocalStorage
-function loadAndDisplayAnnouncements() {
-    const announcements = JSON.parse(localStorage.getItem('announcements')) || [];
-    displayAnnouncements(announcements);
-}
+async function handlePostAnnouncement() {
+    const input = document.getElementById('announcement-input');
+    const text = input.value.trim();
+    if (!text) return;
 
-// دالة لحفظ مصفوفة الأخبار في LocalStorage
-function saveAnnouncements(announcements) {
-    localStorage.setItem('announcements', JSON.stringify(announcements));
-}
+    // **مهم**: تم وضع مفتاحك هنا
+    const API_KEY = '$2a$10$XLSiqirKn7MnR.1Cm5ueDOx3df2LJC03w5ng8xnjKZfQVzeKVHK2m';
+    let binId = localStorage.getItem('announcementsBinId');
 
-// دالة لعرض الأخبار في الصفحة
-function displayAnnouncements(announcements) {
+    const newAnnouncement = {
+        id: `ann-${Date.now()}`,
+        text: text,
+        date: new Date().toISOString()
+    };
+
+    try {
+        let currentAnnouncements = [];
+        if (binId) {
+            const fetchRes = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, { headers: { 'X-Master-Key': API_KEY } });
+            if (fetchRes.ok) {
+                const data = await fetchRes.json();
+                currentAnnouncements = data.record;
+            }
+        }
+
+        currentAnnouncements.unshift(newAnnouncement);
+
+        if (!binId) {
+            console.log("No Bin ID found. Creating a new Bin...");
+            const createRes = await fetch('https://api.jsonbin.io/v3/b', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': API_KEY,
+                    'X-Bin-Name': 'Portal-Announcements'
+                },
+                body: JSON.stringify(currentAnnouncements)
+            });
+
+            if (!createRes.ok) throw new Error('فشل إنشاء صندوق الأخبار.');
+            
+            const newData = await createRes.json();
+            binId = newData.metadata.id;
+            localStorage.setItem('announcementsBinId', binId);
+            console.log(`New Bin created with ID: ${binId}`);
+
+        } else {
+            console.log(`Updating existing Bin with ID: ${binId}`);
+            const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': API_KEY
+                },
+                body: JSON.stringify(currentAnnouncements)
+            });
+
+            if (!updateRes.ok) throw new Error('فشل تحديث الأخبار.');
+        }
+
+        alert("تم نشر الخبر بنجاح!");
+        input.value = '';
+        renderAnnouncements();
+
+    } catch (error) {
+        console.error('Error posting announcement:', error);
+        alert(`حدث خطأ أثناء نشر الخبر: ${error.message}`);
+    }
+}
+async function renderAnnouncements() {
     const listContainer = document.getElementById('announcements-list');
     if (!listContainer) return;
 
-    listContainer.innerHTML = ''; // تفريغ القائمة قبل إعادة العرض
+    const binId = localStorage.getItem('announcementsBinId');
 
-    if (announcements.length === 0) {
-        listContainer.innerHTML = '<p>لا توجد أخبار هامة حالياً.</p>';
+    if (!binId) {
+        const session = JSON.parse(sessionStorage.getItem('userSession'));
+        if (session && session.userId === ADMIN_ID) {
+            listContainer.innerHTML = '<p id="no-announcements-msg">لا توجد أخبار بعد. قم بنشر أول خبر لإنشاء سجل الأخبار المركزي.</p>';
+        } else {
+            listContainer.innerHTML = '<p id="no-announcements-msg">لا توجد أخبار هامة حاليًا.</p>';
+        }
         return;
     }
+    
+    listContainer.innerHTML = '<p>جاري تحميل آخر الأخبار...</p>';
 
-    const session = JSON.parse(sessionStorage.getItem('userSession'));
-    const isAdmin = session && session.userId === ADMIN_ID;
-
-    announcements.forEach(announcement => {
-        const item = document.createElement('div');
-        item.className = 'announcement-item';
-        item.dataset.id = announcement.id;
-
-        // زر الحذف الذي يظهر للمدير فقط
-        const deleteBtnHTML = isAdmin ? `<button class="delete-announcement-btn" title="حذف الخبر"><i class="fa-solid fa-trash"></i></button>` : '';
+    try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest?meta=false`);
+        if (!response.ok) throw new Error('فشل تحميل الأخبار.');
         
-        item.innerHTML = `<p>${announcement.text}</p>${deleteBtnHTML}`;
-        
-        listContainer.appendChild(item);
+        const announcements = await response.json();
 
-        // إضافة وظيفة لزر الحذف إذا كان موجودًا
-        if (isAdmin) {
-            const deleteBtn = item.querySelector('.delete-announcement-btn');
-            if(deleteBtn) {
-                deleteBtn.style.display = 'grid'; // إظهار الزر
-                deleteBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // منع أي أحداث أخرى
-                    if (confirm('هل أنت متأكد من حذف هذا الخبر؟')) {
-                        // حذف الخبر من المصفوفة وإعادة الحفظ والعرض
-                        const updatedAnnouncements = announcements.filter(a => a.id !== announcement.id);
-                        saveAnnouncements(updatedAnnouncements);
-                        displayAnnouncements(updatedAnnouncements);
-                    }
-                });
-            }
+        listContainer.innerHTML = '';
+
+        if (!announcements || announcements.length === 0) {
+            listContainer.innerHTML = '<p id="no-announcements-msg">لا توجد أخبار هامة حاليًا.</p>';
+            return;
         }
-    });
-}
 
+        const session = JSON.parse(sessionStorage.getItem('userSession'));
+        const isAdmin = session && session.userId === ADMIN_ID;
+
+        announcements.forEach(announcement => {
+            const item = document.createElement('div');
+            item.className = 'announcement-item';
+            item.dataset.id = announcement.id;
+
+            const deleteBtnHTML = isAdmin ? `<button class="delete-announcement-btn" title="حذف الخبر"><i class="fa-solid fa-trash"></i></button>` : '';
+            
+            item.innerHTML = `
+                <p>${announcement.text}</p>
+                <span class="announcement-date">نُشر في: ${new Date(announcement.date).toLocaleString('ar-EG')}</span>
+                ${deleteBtnHTML}
+            `;
+            
+            listContainer.appendChild(item);
+
+            if (isAdmin) {
+                const deleteBtn = item.querySelector('.delete-announcement-btn');
+                if(deleteBtn) {
+                    deleteBtn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        if (confirm('هل أنت متأكد من حذف هذا الخبر؟')) {
+                            const updatedAnnouncements = announcements.filter(a => a.id !== announcement.id);
+                            
+                            // **جديد**: تحديث الخادم بعد الحذف
+                            try {
+                                const API_KEY = '$2a$10$XLSiqirKn7MnR.1Cm5ueDOx3df2LJC03w5ng8xnjKZfQVzeKVHK2m';
+                                const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-Master-Key': API_KEY
+                                    },
+                                    body: JSON.stringify(updatedAnnouncements)
+                                });
+                                if (!updateRes.ok) throw new Error('فشل حذف الخبر من الخادم.');
+                                
+                                renderAnnouncements(); // إعادة العرض بعد النجاح
+                            } catch (error) {
+                                alert(`فشل حذف الخبر: ${error.message}`);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching announcements:', error);
+        listContainer.innerHTML = '<p style="color: var(--accent-error);">عذرًا، حدث خطأ أثناء تحميل الأخبار.</p>';
+    }
+}
 
 function setupCommonListeners() {
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
         searchInput.addEventListener('keyup', () => {
             const filter = searchInput.value.toLowerCase();
-            document.querySelectorAll('.file-list li, .subject-card-wrapper, .subject-section').forEach(item => {
+            document.querySelectorAll('.file-list li, .subject-card-wrapper, .subject-section, .announcement-item').forEach(item => {
                 const isVisible = item.textContent.toLowerCase().includes(filter);
                 item.style.display = isVisible ? (item.tagName === 'LI' ? 'flex' : 'block') : 'none';
             });
@@ -465,8 +536,6 @@ function setupUploadListeners() {
         }
     });
 }
-
-
 // ==================================================================
 // ==================================================================
 // ==                                                              ==
@@ -615,6 +684,7 @@ const ManusGuard = {
         });
     }
 };
+
 // --- 7. دوال التخزين والعرض ---
 function addFileToStorage(file, sectionId, userName, fileDisplayName) {
     return new Promise((resolve, reject) => {
@@ -666,7 +736,6 @@ function addFileToStorage(file, sectionId, userName, fileDisplayName) {
         }
     });
 }
-
 function deleteFileFromStorage(fileId) {
     if (!db) { alert("قاعدة البيانات غير جاهزة."); return; }
     const transaction = db.transaction(['files'], 'readwrite');
@@ -686,8 +755,7 @@ function deleteFileFromStorage(fileId) {
 }
 
 async function setupPageContent() {
-    // **جديد**: تحميل الأخبار في الصفحات الفرعية أيضًا
-    loadAndDisplayAnnouncements();
+    renderAnnouncements();
 
     if (document.getElementById('main-subjects-grid')) { 
         displayUserAddedSections(); 
@@ -831,6 +899,7 @@ function displayFilesForSection(sectionId) {
         fileList.appendChild(li);
     });
 }
+
 function downloadFile(fileId, originalFileName) {
     if (!db) { alert("قاعدة البيانات غير جاهزة، يرجى المحاولة مرة أخرى."); return; }
     const transaction = db.transaction(['files'], 'readonly');
@@ -969,23 +1038,16 @@ async function loadNsfwModelAndShowPopup() {
     const popup = document.getElementById('manus-guard-popup');
     if (!popup) return;
 
-    // **جديد**: التحقق من LocalStorage قبل إظهار النافذة
     const hidePopupPermanently = localStorage.getItem('hideManusGuardPopup');
     if (hidePopupPermanently === 'true') {
-        console.log('[ManusGuard] تم تخطي إظهار نافذة الحماية بناءً على طلب المستخدم.');
-        return; // لا تقم بإظهار النافذة
+        return;
     }
 
-    // --- إعداد أزرار التحكم ---
     const skipBtn = document.getElementById('skip-popup-btn');
     const dontShowBtn = document.getElementById('dont-show-popup-btn');
 
-    const closePopup = () => {
-        popup.classList.remove('active');
-    };
-
+    const closePopup = () => popup.classList.remove('active');
     const dontShowAgain = () => {
-        // **جديد**: حفظ اختيار المستخدم في LocalStorage
         localStorage.setItem('hideManusGuardPopup', 'true');
         closePopup();
     };
@@ -993,7 +1055,6 @@ async function loadNsfwModelAndShowPopup() {
     skipBtn.addEventListener('click', closePopup);
     dontShowBtn.addEventListener('click', dontShowAgain);
 
-    // --- إظهار النافذة وتحديث محتواها ---
     popup.classList.add('active');
     
     const statusDiv = document.getElementById('manus-guard-status');
