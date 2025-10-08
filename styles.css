@@ -270,13 +270,15 @@ button { cursor: pointer; border: none; font-family: var(--font-family); font-we
     color: #fff;
     font-weight: 700;
     position: relative;
+    padding-left: 40px; /* مساحة لزر الحذف */
 }
 
 /* زر الحذف الخاص بالمدير للخبر */
 .announcement-item .delete-announcement-btn {
     position: absolute;
-    top: 8px;
+    top: 50%;
     left: 8px;
+    transform: translateY(-50%);
     width: 28px;
     height: 28px;
     border-radius: 50%;
