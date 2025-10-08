@@ -7,6 +7,9 @@
 
 // --- 1. الإعدادات العامة ---
 const ADMIN_ID = "user-1759774462780";
+const API_KEY = '$2a$10$XLSiqirKn7MnR.1Cm5ueDOx3df2LJC03w5ng8xnjKZfQVzeKVHK2m'; // **تم وضع مفتاحك هنا**
+const BIN_ID = '6720f10ee41b4d34e417a7a5'; // **تم وضع معرف الصندوق هنا**
+
 let db;
 let nsfwModel = null;
 
@@ -184,7 +187,7 @@ function startOnboardingTour(userId, onFinishCallback) {
 // --- 5. الوظائف العامة بعد تسجيل الدخول ---
 async function initializePageFunctions() {
     initializeAdminPanel();
-    renderAnnouncements(); // **تعديل**: أصبحت دالة غير متزامنة
+    await loadAndDisplayAnnouncements(); // **تعديل**: أصبحت دالة متزامنة
 
     setupPageContent();
     if (document.getElementById('upload-section')) {
@@ -209,8 +212,7 @@ async function initializePageFunctions() {
         }
     }
 }
-
-// --- 5.1. **جديد**: دوال نظام إدارة الأخبار المركزي ---
+// --- 5.1. **جديد**: دوال نظام إدارة الأخبار المركزي (مع حل CORS) ---
 
 function initializeAdminPanel() {
     const session = JSON.parse(sessionStorage.getItem('userSession'));
@@ -226,11 +228,10 @@ function initializeAdminPanel() {
 async function handlePostAnnouncement() {
     const input = document.getElementById('announcement-input');
     const text = input.value.trim();
-    if (!text) return;
-
-    // **مهم**: تم وضع مفتاحك هنا
-    const API_KEY = '$2a$10$XLSiqirKn7MnR.1Cm5ueDOx3df2LJC03w5ng8xnjKZfQVzeKVHK2m';
-    let binId = localStorage.getItem('announcementsBinId');
+    if (!text) {
+        alert('الرجاء كتابة نص الخبر.');
+        return;
+    }
 
     const newAnnouncement = {
         id: `ann-${Date.now()}`,
@@ -239,143 +240,132 @@ async function handlePostAnnouncement() {
     };
 
     try {
+        // جلب الأخبار الحالية أولاً
+        const fetchRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
         let currentAnnouncements = [];
-        if (binId) {
-            const fetchRes = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, { headers: { 'X-Master-Key': API_KEY } });
-            if (fetchRes.ok) {
-                const data = await fetchRes.json();
-                currentAnnouncements = data.record;
-            }
+        if (fetchRes.ok) {
+            const data = await fetchRes.json();
+            currentAnnouncements = data.record;
         }
 
+        // إضافة الخبر الجديد إلى البداية
         currentAnnouncements.unshift(newAnnouncement);
 
-        if (!binId) {
-            console.log("No Bin ID found. Creating a new Bin...");
-            const createRes = await fetch('https://api.jsonbin.io/v3/b', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': API_KEY,
-                    'X-Bin-Name': 'Portal-Announcements'
-                },
-                body: JSON.stringify(currentAnnouncements)
-            });
+        // تحديث الصندوق بالبيانات الجديدة
+        const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': API_KEY
+            },
+            body: JSON.stringify(currentAnnouncements)
+        });
 
-            if (!createRes.ok) throw new Error('فشل إنشاء صندوق الأخبار.');
-            
-            const newData = await createRes.json();
-            binId = newData.metadata.id;
-            localStorage.setItem('announcementsBinId', binId);
-            console.log(`New Bin created with ID: ${binId}`);
-
-        } else {
-            console.log(`Updating existing Bin with ID: ${binId}`);
-            const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': API_KEY
-                },
-                body: JSON.stringify(currentAnnouncements)
-            });
-
-            if (!updateRes.ok) throw new Error('فشل تحديث الأخبار.');
+        if (!updateRes.ok) {
+            throw new Error('فشل تحديث الأخبار على الخادم.');
         }
 
         alert("تم نشر الخبر بنجاح!");
         input.value = '';
-        renderAnnouncements();
+        await loadAndDisplayAnnouncements(); // إعادة تحميل وعرض الأخبار
 
     } catch (error) {
         console.error('Error posting announcement:', error);
         alert(`حدث خطأ أثناء نشر الخبر: ${error.message}`);
     }
 }
-async function renderAnnouncements() {
+
+async function loadAndDisplayAnnouncements() {
     const listContainer = document.getElementById('announcements-list');
     if (!listContainer) return;
 
-    const binId = localStorage.getItem('announcementsBinId');
-
-    if (!binId) {
-        const session = JSON.parse(sessionStorage.getItem('userSession'));
-        if (session && session.userId === ADMIN_ID) {
-            listContainer.innerHTML = '<p id="no-announcements-msg">لا توجد أخبار بعد. قم بنشر أول خبر لإنشاء سجل الأخبار المركزي.</p>';
-        } else {
-            listContainer.innerHTML = '<p id="no-announcements-msg">لا توجد أخبار هامة حاليًا.</p>';
-        }
-        return;
-    }
-    
     listContainer.innerHTML = '<p>جاري تحميل آخر الأخبار...</p>';
 
     try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest?meta=false`);
-        if (!response.ok) throw new Error('فشل تحميل الأخبار.');
-        
-        const announcements = await response.json();
+        // **الحل النهائي لمشكلة CORS: استخدام الوسيط allorigins.win**
+        const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest?meta=false`)}`);
 
-        listContainer.innerHTML = '';
-
-        if (!announcements || announcements.length === 0) {
-            listContainer.innerHTML = '<p id="no-announcements-msg">لا توجد أخبار هامة حاليًا.</p>';
-            return;
+        if (!response.ok) {
+            throw new Error(`فشل الاتصال بالخادم الوسيط: ${response.statusText}`);
         }
 
-        const session = JSON.parse(sessionStorage.getItem('userSession'));
-        const isAdmin = session && session.userId === ADMIN_ID;
+        const data = await response.json();
+        
+        // **خطوة مهمة**: فك تغليف البيانات من الوسيط
+        const actualData = JSON.parse(data.contents);
 
-        announcements.forEach(announcement => {
-            const item = document.createElement('div');
-            item.className = 'announcement-item';
-            item.dataset.id = announcement.id;
-
-            const deleteBtnHTML = isAdmin ? `<button class="delete-announcement-btn" title="حذف الخبر"><i class="fa-solid fa-trash"></i></button>` : '';
-            
-            item.innerHTML = `
-                <p>${announcement.text}</p>
-                <span class="announcement-date">نُشر في: ${new Date(announcement.date).toLocaleString('ar-EG')}</span>
-                ${deleteBtnHTML}
-            `;
-            
-            listContainer.appendChild(item);
-
-            if (isAdmin) {
-                const deleteBtn = item.querySelector('.delete-announcement-btn');
-                if(deleteBtn) {
-                    deleteBtn.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        if (confirm('هل أنت متأكد من حذف هذا الخبر؟')) {
-                            const updatedAnnouncements = announcements.filter(a => a.id !== announcement.id);
-                            
-                            // **جديد**: تحديث الخادم بعد الحذف
-                            try {
-                                const API_KEY = '$2a$10$XLSiqirKn7MnR.1Cm5ueDOx3df2LJC03w5ng8xnjKZfQVzeKVHK2m';
-                                const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
-                                    method: 'PUT',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-Master-Key': API_KEY
-                                    },
-                                    body: JSON.stringify(updatedAnnouncements)
-                                });
-                                if (!updateRes.ok) throw new Error('فشل حذف الخبر من الخادم.');
-                                
-                                renderAnnouncements(); // إعادة العرض بعد النجاح
-                            } catch (error) {
-                                alert(`فشل حذف الخبر: ${error.message}`);
-                            }
-                        }
-                    });
-                }
+        if (!Array.isArray(actualData)) {
+            // إذا كانت البيانات ليست مصفوفة، قد يكون هناك خطأ من jsonbin
+            if (actualData.message) {
+                throw new Error(`خطأ من خادم البيانات: ${actualData.message}`);
             }
-        });
+            throw new Error('صيغة البيانات المستلمة غير صحيحة.');
+        }
+        
+        displayAnnouncements(actualData);
 
     } catch (error) {
-        console.error('Error fetching announcements:', error);
-        listContainer.innerHTML = '<p style="color: var(--accent-error);">عذرًا، حدث خطأ أثناء تحميل الأخبار.</p>';
+        console.error('Error loading announcements:', error);
+        listContainer.innerHTML = `<p style="color: var(--accent-error);">عذرًا، حدث خطأ أثناء تحميل الأخبار. (${error.message})</p>`;
     }
+}
+
+function displayAnnouncements(announcements) {
+    const listContainer = document.getElementById('announcements-list');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = '';
+
+    if (!announcements || announcements.length === 0) {
+        listContainer.innerHTML = '<p>لا توجد أخبار هامة حاليًا.</p>';
+        return;
+    }
+
+    const session = JSON.parse(sessionStorage.getItem('userSession'));
+    const isAdmin = session && session.userId === ADMIN_ID;
+
+    announcements.forEach(announcement => {
+        const item = document.createElement('div');
+        item.className = 'announcement-item';
+        item.dataset.id = announcement.id;
+
+        const deleteBtnHTML = isAdmin ? `<button class="delete-announcement-btn" title="حذف الخبر"><i class="fa-solid fa-trash"></i></button>` : '';
+        
+        item.innerHTML = `
+            <p>${announcement.text}</p>
+            ${deleteBtnHTML}
+        `;
+        
+        listContainer.appendChild(item);
+
+        if (isAdmin) {
+            const deleteBtn = item.querySelector('.delete-announcement-btn');
+            if(deleteBtn) {
+                deleteBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (confirm('هل أنت متأكد من حذف هذا الخبر؟')) {
+                        const updatedAnnouncements = announcements.filter(a => a.id !== announcement.id);
+                        
+                        try {
+                            const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-Master-Key': API_KEY
+                                },
+                                body: JSON.stringify(updatedAnnouncements)
+                            });
+                            if (!updateRes.ok) throw new Error('فشل حذف الخبر من الخادم.');
+                            
+                            await loadAndDisplayAnnouncements();
+                        } catch (error) {
+                            alert(`فشل حذف الخبر: ${error.message}`);
+                        }
+                    }
+                });
+            }
+        }
+    });
 }
 
 function setupCommonListeners() {
@@ -439,7 +429,6 @@ function applySavedTheme() {
     const savedTheme = localStorage.getItem('selectedTheme') || 'theme-aurora';
     applyTheme(savedTheme);
 }
-
 // --- 6. منطق الرفع واستدعاء "ManusGuard" ---
 function setupUploadListeners() {
     let selectedFile = null;
@@ -536,6 +525,8 @@ function setupUploadListeners() {
         }
     });
 }
+
+
 // ==================================================================
 // ==================================================================
 // ==                                                              ==
@@ -684,7 +675,6 @@ const ManusGuard = {
         });
     }
 };
-
 // --- 7. دوال التخزين والعرض ---
 function addFileToStorage(file, sectionId, userName, fileDisplayName) {
     return new Promise((resolve, reject) => {
@@ -736,6 +726,7 @@ function addFileToStorage(file, sectionId, userName, fileDisplayName) {
         }
     });
 }
+
 function deleteFileFromStorage(fileId) {
     if (!db) { alert("قاعدة البيانات غير جاهزة."); return; }
     const transaction = db.transaction(['files'], 'readwrite');
@@ -755,7 +746,7 @@ function deleteFileFromStorage(fileId) {
 }
 
 async function setupPageContent() {
-    renderAnnouncements();
+    await loadAndDisplayAnnouncements();
 
     if (document.getElementById('main-subjects-grid')) { 
         displayUserAddedSections(); 
