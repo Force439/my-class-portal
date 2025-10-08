@@ -1,4 +1,4 @@
-// ==================================================================
+جك// ==================================================================
 // ==== المحرك النهائي للبوابة - إصدار "ManusGuard" مع نظام أخبار مركزي ====
 // ==================================================================
 //            هذا الكود هو تجسيد لذكاء وقرارات "مانوس"
@@ -224,14 +224,13 @@ function initializeAdminPanel() {
         postBtn.addEventListener('click', handlePostAnnouncement);
     }
 }
-
 async function handlePostAnnouncement() {
     const input = document.getElementById('announcement-input');
     const text = input.value.trim();
-    if (!text) {
-        alert('الرجاء كتابة نص الخبر.');
-        return;
-    }
+    if (!text) return;
+
+    const API_KEY = '$2a$10$XLSiqirKn7MnR.1Cm5ueDOx3df2LJC03w5ng8xnjKZfQVzeKVHK2m';
+    let binId = localStorage.getItem('announcementsBinId');
 
     const newAnnouncement = {
         id: `ann-${Date.now()}`,
@@ -240,34 +239,65 @@ async function handlePostAnnouncement() {
     };
 
     try {
-        // جلب الأخبار الحالية أولاً
-        const fetchRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
-        let currentAnnouncements = [];
-        if (fetchRes.ok) {
+        // **المنطق الجديد والمحسّن**
+
+        // 1. إذا لم يكن هناك صندوق، قم بإنشائه وضع الخبر الأول فيه.
+        if (!binId) {
+            console.log("No Bin ID found. Creating a new Bin...");
+            const createRes = await fetch('https://api.jsonbin.io/v3/b', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': API_KEY,
+                    'X-Bin-Name': 'Portal-Announcements',
+                    'X-Bin-Private': 'false' // **مهم جدًا**: اجعل الصندوق قابلاً للقراءة للجميع
+                },
+                body: JSON.stringify([newAnnouncement]) // أرسل الخبر الأول فقط
+            });
+
+            if (!createRes.ok) {
+                const errorData = await createRes.json();
+                throw new Error(`فشل إنشاء صندوق الأخبار: ${errorData.message}`);
+            }
+            
+            const newData = await createRes.json();
+            binId = newData.metadata.id;
+            localStorage.setItem('announcementsBinId', binId);
+            console.log(`New Bin created with ID: ${binId}`);
+
+        // 2. إذا كان الصندوق موجودًا، قم بجلب الأخبار القديمة وأضف الجديد ثم حدث.
+        } else {
+            console.log(`Updating existing Bin with ID: ${binId}`);
+            
+            // جلب الأخبار الحالية أولاً
+            const fetchRes = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, { headers: { 'X-Master-Key': API_KEY } });
+            if (!fetchRes.ok) throw new Error('فشل في جلب الأخبار الحالية قبل التحديث.');
+            
             const data = await fetchRes.json();
-            currentAnnouncements = data.record;
-        }
+            const currentAnnouncements = data.record || [];
 
-        // إضافة الخبر الجديد إلى البداية
-        currentAnnouncements.unshift(newAnnouncement);
+            // إضافة الخبر الجديد إلى البداية
+            currentAnnouncements.unshift(newAnnouncement);
 
-        // تحديث الصندوق بالبيانات الجديدة
-        const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': API_KEY
-            },
-            body: JSON.stringify(currentAnnouncements)
-        });
+            // تحديث الصندوق بالمصفوفة الكاملة
+            const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': API_KEY
+                },
+                body: JSON.stringify(currentAnnouncements)
+            });
 
-        if (!updateRes.ok) {
-            throw new Error('فشل تحديث الأخبار على الخادم.');
+            if (!updateRes.ok) {
+                 const errorData = await updateRes.json();
+                throw new Error(`فشل تحديث الأخبار: ${errorData.message}`);
+            }
         }
 
         alert("تم نشر الخبر بنجاح!");
         input.value = '';
-        await loadAndDisplayAnnouncements(); // إعادة تحميل وعرض الأخبار
+        await renderAnnouncements(); // انتظر إعادة العرض
 
     } catch (error) {
         console.error('Error posting announcement:', error);
